@@ -18,7 +18,7 @@ jobs:
     runs-on: xcode-27 # Apple Silicon, macOS 27 (preview image), matches local Xcode 27.2
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Select Xcode 27.2
         uses: maxim-lobanov/setup-xcode@v1
@@ -46,7 +46,7 @@ jobs:
     # New in 1.0.0 and not yet run on a hosted runner: keep it informational until it has passed there.
     continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Select Xcode 27.2
         uses: maxim-lobanov/setup-xcode@v1
