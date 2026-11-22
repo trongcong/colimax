@@ -6,7 +6,7 @@
 
 A native macOS app for managing Colima and Docker on Apple Silicon.
 
-![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![Version](https://img.shields.io/badge/version-1.0.0--beta.1-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![macOS](https://img.shields.io/badge/macOS-14%2B-lightgrey)
 ![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-black)
@@ -98,7 +98,9 @@ Docker screens only work when the profile uses the `docker` runtime.
 
 ## Installation
 
-There is no prebuilt release yet. Build the app from source:
+A pre-release build, **1.0.0-beta.1**, is on [GitHub Releases](https://github.com/trongcong/colimax/releases). It is ad-hoc signed and not notarized by Apple: after dragging ColimaX into Applications, open it once, then go to **System Settings → Privacy & Security → Open Anyway** (or run `xattr -dr com.apple.quarantine /Applications/ColimaX.app`). Check the download against the `.sha256` file with `shasum -a 256 ColimaX-1.0.0-beta.1.dmg`.
+
+Or build the app from source:
 
 ```bash
 scripts/build-app.sh                 # creates build/ColimaX.app (ad-hoc signed, Hardened Runtime)
@@ -225,7 +227,7 @@ The UI is available in English and Vietnamese (`Resources/en.lproj`, `Resources/
 
 ## Project status
 
-Version 1.0.0 is not yet released. It builds cleanly (Swift 6 strict concurrency, 0 warnings); unit, integration and UI tests pass against a real Colima VM, and the manual UI checklist has been done. Per-feature status and test results are tracked in [docs/FEATURES.md](docs/FEATURES.md).
+Version 1.0.0 is in beta (`1.0.0-beta.1`, ad-hoc signed); the final release will be signed with a Developer ID and notarized. It builds cleanly (Swift 6 strict concurrency, 0 warnings); unit, integration and UI tests pass against a real Colima VM, and the manual UI checklist has been done. Per-feature status and test results are tracked in [docs/FEATURES.md](docs/FEATURES.md).
 
 ## License
 

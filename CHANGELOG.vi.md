@@ -8,7 +8,9 @@ Mọi thay đổi đáng chú ý của ColimaX được ghi trong file này. B�
 
 ## [Unreleased]
 
-Dự kiến là **1.0.0**, bản phát hành đầu tiên. Khi phát hành, đổi heading này thành `## [1.0.0] - YYYY-MM-DD` (xem [docs/RELEASE.vi.md](docs/RELEASE.vi.md)).
+## [1.0.0-beta.1] - 2026-11-22
+
+Bản pre-release đầu tiên của **1.0.0**. Ký ad-hoc, chưa notarize bởi Apple (xem [docs/RELEASE.vi.md](docs/RELEASE.vi.md) §3.6). Mục 1.0.0 chính thức sẽ lặp lại danh sách này cùng các bản sửa lỗi trong giai đoạn beta.
 
 ### Thêm mới
 

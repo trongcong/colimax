@@ -8,7 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
-Planned as **1.0.0**, the first release. At release time, rename this heading to `## [1.0.0] - YYYY-MM-DD` (see [docs/RELEASE.md](docs/RELEASE.md)).
+## [1.0.0-beta.1] - 2026-11-22
+
+First pre-release of **1.0.0**. Ad-hoc signed, not notarized by Apple (see [docs/RELEASE.md](docs/RELEASE.md) §3.6). The final 1.0.0 entry will repeat this list plus any fixes made during the beta.
 
 ### Added
 
