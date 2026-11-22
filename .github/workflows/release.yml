@@ -1,0 +1,95 @@
+name: Release
+
+# Pushing tag vX.Y.Z builds, signs with Developer ID, notarizes, and creates a DRAFT GitHub Release.
+# The release manager reviews the draft and publishes it manually.
+#
+# Required secrets (Settings -> Secrets and variables -> Actions):
+#   MACOS_CERT_P12_BASE64   "Developer ID Application" certificate exported as .p12, base64-encoded
+#   MACOS_CERT_PASSWORD     password of the .p12 file
+#   SIGN_IDENTITY           e.g. Developer ID Application: Your Name (TEAMID)
+#   NOTARY_KEY_P8_BASE64    App Store Connect API key (.p8), base64-encoded
+#   NOTARY_KEY_ID           Key ID of the API key
+#   NOTARY_ISSUER_ID        Issuer ID
+# Variables (non-secret): BUNDLE_ID (optional, default dev.colimax.ColimaX)
+
+on:
+  push:
+    tags: ["v*.*.*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    environment: release
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '27.2'
+
+      - name: Check tag matches VERSION file
+        run: |
+          VERSION="$(tr -d '[:space:]' < VERSION)"
+          [ "${GITHUB_REF_NAME}" = "v${VERSION}" ] || { echo "Tag ${GITHUB_REF_NAME} does not match v${VERSION}"; exit 1; }
+          echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+
+      - name: Unit tests
+        run: scripts/run-tests.sh
+
+      - name: Import certificate into a temporary keychain
+        env:
+          CERT_P12: ${{ secrets.MACOS_CERT_P12_BASE64 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          KEYCHAIN="$RUNNER_TEMP/release.keychain-db"
+          KEYCHAIN_PASSWORD="$(uuidgen)"
+          echo "$CERT_P12" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -P "$CERT_PASSWORD" -A -t cert -f pkcs12 -k "$KEYCHAIN"
+          security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr -d '"')
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Build, sign, notarize, DMG
+        env:
+          SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
+          BUNDLE_ID: ${{ vars.BUNDLE_ID || 'dev.colimax.ColimaX' }}
+          BUILD_NUMBER: ${{ github.run_number }}
+          NOTARY_KEY_ID: ${{ secrets.NOTARY_KEY_ID }}
+          NOTARY_ISSUER_ID: ${{ secrets.NOTARY_ISSUER_ID }}
+          NOTARY_KEY_P8: ${{ secrets.NOTARY_KEY_P8_BASE64 }}
+          SKIP_TESTS: "1"
+        run: |
+          export NOTARY_KEY_PATH="$RUNNER_TEMP/notary.p8"
+          echo "$NOTARY_KEY_P8" | base64 --decode > "$NOTARY_KEY_PATH"
+          scripts/release.sh
+          rm -f "$NOTARY_KEY_PATH"
+
+      - name: Extract release notes from CHANGELOG
+        run: |
+          awk -v v="$VERSION" '
+            $0 ~ "^## \\[" v "\\]" {on=1; next}
+            on && /^## \[/ {exit}
+            on {print}
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          test -s "$RUNNER_TEMP/notes.md"
+
+      - name: Create GitHub Release (draft)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$VERSION" in *-*) PRE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" \
+            "build/ColimaX-${VERSION}.dmg" "build/ColimaX-${VERSION}.dmg.sha256" \
+            --title "ColimaX ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --draft $PRE
+
+      - name: Delete temporary keychain
+        if: always()
+        run: security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true

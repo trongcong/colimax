@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ColimaX: Colima and Docker for macOS</title>
+  <meta name="description" content="ColimaX is a free, native macOS app for running Colima and Docker on Apple Silicon: VM and profiles, containers, Compose, backups and diagnostics in one window and the menu bar.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="ColimaX">
+  <meta property="og:description" content="A native macOS app for Colima and Docker on Apple Silicon.">
+  <meta property="og:image" content="icon.png">
+  <link rel="icon" type="image/png" href="icon.png">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="alternate" hreflang="vi" href="vi/">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="hero">
+  <div class="menubar">
+    <span class="app" aria-hidden="true">ColimaX</span>
+    <span class="item" aria-hidden="true">File</span>
+    <span class="item" aria-hidden="true">Edit</span>
+    <span class="item" aria-hidden="true">Go</span>
+    <span class="item" aria-hidden="true">Window</span>
+    <span class="item" aria-hidden="true">Help</span>
+    <span class="spacer"></span>
+    <a class="lang" href="vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+    <span class="glyph" aria-hidden="true">
+      <svg width="21" height="18" viewBox="223 212 659 576" fill="none" stroke="#fff" stroke-linecap="round">
+        <!-- Same geometry as MenuBarIcon.swift (1024-pt design space, y flipped for SVG). -->
+        <path d="M640 330A230 230 0 1 0 640 694" stroke-width="92"/>
+        <path d="M560 604L760 404M760 604L560 404" stroke-width="78"/>
+        <circle cx="830" cy="264" r="52" fill="#fff" stroke="none"/>
+      </svg>
+    </span>
+    <span class="clock" aria-hidden="true">9:41</span>
+  </div>
+
+  <div class="wrap hero-body">
+    <div>
+      <div class="brand"><img src="icon.png" alt="" width="56" height="56"><span>ColimaX</span></div>
+      <h1>Colima, in a Mac window.</h1>
+      <p class="lede">A native macOS app for Colima and Docker on Apple Silicon. Start the VM, manage containers and Compose projects, back up volumes and databases, and find out what is wrong, from one window or straight from the menu bar.</p>
+      <div class="actions">
+        <a class="button primary" href="#install">Build from source</a>
+        <a class="button secondary" href="https://github.com/trongcong/colimax">View on GitHub</a>
+      </div>
+      <p class="note">Free and open source under the MIT license.</p>
+    </div>
+
+    <div class="popover" role="img" aria-label="The ColimaX menu bar menu: profile default is running with 4 CPU and 6 GiB, two of three containers are running.">
+      <div class="pop-head">
+        <div class="pop-row"><span class="dot on"></span><span class="profile">default</span><span class="status">Running</span></div>
+        <div class="pop-summary">4 CPU · 6 GiB · 100 GiB disk · docker</div>
+        <div class="pop-buttons">
+          <span><svg width="9" height="9" viewBox="0 0 9 9"><rect width="9" height="9" rx="1.5" fill="currentColor"/></svg>Stop</span>
+          <span><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg>Restart</span>
+        </div>
+      </div>
+      <div class="pop-divider"></div>
+      <ul class="pop-list">
+        <li><span class="dot on"></span><span><span class="name">web</span><span class="image">nginx:latest</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="currentColor"/></svg></span></li>
+        <li><span class="dot on"></span><span><span class="name">db</span><span class="image">postgres:16</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="currentColor"/></svg></span></li>
+        <li><span class="dot"></span><span><span class="name">worker</span><span class="image">ghcr.io/acme/worker:2.1</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="currentColor"/></svg></span></li>
+      </ul>
+      <div class="pop-divider"></div>
+      <div class="pop-foot"><span>2/3 running</span><b class="push">Open ColimaX</b><b>Quit</b></div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="shots" aria-label="Screenshots">
+  <div class="wrap">
+    <figure class="shot shot-main">
+      <img src="img/containers.png" width="2200" height="1460" loading="eager" alt="The Containers screen: two Compose projects and standalone containers with health and ports; the details of shop-db-1 show restart policy, memory limit, mounts and environment variables with the password masked.">
+      <figcaption>Containers, with health, ports and details. Passwords stay masked until you choose to show them.</figcaption>
+    </figure>
+    <div class="shot-grid">
+      <figure class="shot">
+        <img src="img/dashboard.png" width="2200" height="1460" loading="lazy" alt="The Dashboard: VM running with CPU, memory and disk use inside the VM, Docker engine details and disk usage.">
+        <figcaption>Dashboard: what the VM is really using.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="img/monitoring.png" width="2200" height="1460" loading="lazy" alt="The Monitoring screen: live CPU and memory charts and per-container network and disk I/O.">
+        <figcaption>Monitoring: live charts per container.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="img/diagnostics.png" width="2200" height="1460" loading="lazy" alt="The Diagnostics screen: runtime checks and security findings such as a mounted docker.sock and a port open to every interface.">
+        <figcaption>Diagnostics: setup checks and a read-only security audit.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+  <section>
+    <div class="wrap">
+      <h2>Every screen you need, in one sidebar.</h2>
+      <p class="intro">Grouped the way the app groups them. Docker screens talk to the Docker Engine API over the Colima socket, so they stay fast and need no extra tools.</p>
+      <div class="sidebar">
+        <div class="group">
+          <h3>Overview</h3>
+          <dl>
+            <dt>Dashboard</dt><dd>VM status, start, stop and restart, real CPU, memory and disk use inside the VM.</dd>
+            <dt>Monitoring</dt><dd>Live CPU, memory, network and disk I/O per container, with alerts and three days of history.</dd>
+            <dt>Diagnostics</dt><dd>Checks for missing tools, a wrong Docker context, VZ, virtiofs and Rosetta, port conflicts and risky container settings.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Docker</h3>
+          <dl>
+            <dt>Containers</dt><dd>Start, stop, logs, exec and inspect, with health, exit codes and secrets masked.</dd>
+            <dt>Compose</dt><dd>Projects found from labels or a folder; up, down, logs and per-service restart.</dd>
+            <dt>Images, Volumes, Networks</dt><dd>Pull with progress, spot amd64 images, connect containers to networks.</dd>
+            <dt>Storage</dt><dd>See what takes space and clean it up after confirming.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Tools</h3>
+          <dl>
+            <dt>Backups</dt><dd>Scheduled volume and database backups that keep the newest copies.</dd>
+            <dt>Topology</dt><dd>A graph of networks, containers and Compose dependencies.</dd>
+            <dt>Local Domains</dt><dd>Reach a container at <code>name.localhost</code>, with local HTTPS.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Settings</h3>
+          <dl>
+            <dt>Runtime Settings</dt><dd>Profiles, CPU, memory, disk, VM type, mounts, Rosetta and Kubernetes. Changes that recreate the VM are flagged first.</dd>
+            <dt>Preferences</dt><dd>Theme, language, Dock icon, open at login, start the VM automatically, notifications.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>Careful with your data.</h2>
+        <p class="intro">A container tool can delete a database with one click. ColimaX is built so that it does not.</p>
+      </div>
+      <ul class="points">
+        <li><strong>Destructive actions ask first</strong><span>Removing, pruning and stopping the VM need confirmation. Restoring a database or shrinking a disk asks you to type the name.</span></li>
+        <li><strong>Backups you can trust</strong><span>Volumes are saved as <code>.tar</code> with a SHA-256 manifest, and every backup is verified before it is restored. MySQL, MariaDB, PostgreSQL and Redis dumps run inside the container, so credentials never leave it.</span></li>
+        <li><strong>Secrets stay hidden</strong><span>Passwords and tokens in environment variables are masked until you choose to show them.</span></li>
+        <li><strong>A read-only security audit</strong><span>Flags privileged containers, a mounted <code>docker.sock</code>, host networking and ports open to every interface, without changing anything.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>Native, and nothing else to install.</h2>
+      </div>
+      <ul class="points">
+        <li><strong>SwiftUI, no dependencies</strong><span>Written in Swift 6 with strict concurrency. No Electron, no bundled runtime, no third-party packages.</span></li>
+        <li><strong>Made for Apple Silicon</strong><span>Knows about Colima profiles, VZ, virtiofs and Rosetta, and warns when an image will run under emulation.</span></li>
+        <li><strong>Always up to date</strong><span>Follows Docker events and the Colima directory, so the window changes as soon as something does.</span></li>
+        <li><strong>English and Vietnamese</strong><span>Follows your system language, or pick one in Preferences.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install</h2>
+      <p class="intro">There is no signed download yet, so build the app from source. It takes a few minutes.</p>
+      <ol class="steps">
+        <li>
+          <h3>Install Colima and Docker</h3>
+          <p>If you skip this, the Setup Assistant in ColimaX lists what is missing and runs the command for you after you confirm.</p>
+          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+        <li>
+          <h3>Build the app</h3>
+          <p>Needs the Swift 6 toolchain that comes with Xcode.</p>
+          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
+cd colimax
+scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+        <li>
+          <h3>Open it</h3>
+          <p>Copy it to Applications so notifications and open at login work.</p>
+          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
+open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+      </ol>
+
+      <h3 class="subhead">Requirements</h3>
+      <dl class="requirements">
+        <dt>macOS</dt><dd>14 Sonoma or later</dd>
+        <dt>Mac</dt><dd>Apple Silicon (M1 or later)</dd>
+        <dt>Colima</dt><dd>Required, with the docker runtime</dd>
+        <dt>docker CLI</dt><dd>Only for the Compose screen and opening a shell in Terminal</dd>
+        <dt>Trivy or Docker Scout</dt><dd>Optional, for image vulnerability scans</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>ColimaX is an independent project, not affiliated with the Colima project. MIT license.</p>
+    <nav aria-label="Links">
+      <a href="https://github.com/trongcong/colimax">GitHub</a>
+      <a href="https://github.com/trongcong/colimax/issues">Report a bug</a>
+      <a href="vi/" hreflang="vi" lang="vi">Tiếng Việt</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="copy.js"></script>
+</body>
+</html>

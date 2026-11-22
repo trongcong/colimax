@@ -1,0 +1,363 @@
+/* ColimaX landing page. Colors come from the app icon (Resources/AppIcon-1024.png):
+   navy → lagoon gradient, white strokes, ember ring. Type is the macOS system face on purpose:
+   the page should read like the platform the app is built for. */
+
+:root {
+  --ink: #0e1729;
+  --lagoon: #134e4a;
+  --ember: #ff8a3d;
+  --ember-deep: #c2560f;
+  --paper: #eef3f2;
+  --surface: #ffffff;
+  --text: #13202e;
+  --muted: #4a5b6e;
+  --rule: #cfdcda;
+  --ok: #2fb36b;
+  --code-bg: #0e1729;
+  --code-text: #e6eef0;
+
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+  --display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", "Segoe UI", Roboto, sans-serif;
+  --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  --measure: 64ch;
+  --gutter: clamp(16px, 4vw, 48px);
+  --max: 1120px;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --paper: #0b1320;
+    --surface: #111c2c;
+    --text: #e4ecee;
+    --muted: #9fb0bf;
+    --rule: #22324a;
+    --ember-deep: #ff9d5c;
+    --code-bg: #060c16;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--text);
+  font: 17px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--ember-deep); text-underline-offset: 3px; }
+a:hover { text-decoration-thickness: 2px; }
+
+:focus-visible { outline: 3px solid var(--ember); outline-offset: 3px; border-radius: 4px; }
+
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter); }
+
+.skip { position: absolute; left: -9999px; }
+.skip:focus { left: 16px; top: 16px; z-index: 10; background: var(--surface); padding: 8px 12px; }
+
+/* ---------- Hero ---------- */
+
+.hero {
+  position: relative;
+  color: #fff;
+  background: linear-gradient(160deg, var(--ink) 0%, #10303a 55%, var(--lagoon) 100%);
+  overflow: hidden;
+}
+
+/* A macOS menu bar across the top of the hero: the app lives here. */
+.menubar {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: 30px;
+  padding: 0 var(--gutter);
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.menubar .app { font-weight: 700; }
+.menubar .item { opacity: 0.85; }
+.menubar .spacer { flex: 1; }
+.menubar .lang { color: #fff; opacity: 0.85; text-decoration: none; }
+.menubar .lang:hover { opacity: 1; text-decoration: underline; }
+.menubar .glyph {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 22px;
+  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.menubar .clock { opacity: 0.85; font-variant-numeric: tabular-nums; }
+
+.hero-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 380px;
+  gap: clamp(32px, 6vw, 80px);
+  align-items: start;
+  padding-top: clamp(40px, 8vw, 96px);
+  padding-bottom: clamp(56px, 9vw, 112px);
+}
+
+.brand { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+.brand img { width: 56px; height: 56px; }
+.brand span { font: 600 20px/1 var(--display); letter-spacing: -0.01em; }
+
+.hero h1 {
+  margin: 0;
+  font: 700 clamp(44px, 7.4vw, 88px)/0.98 var(--display);
+  letter-spacing: -0.035em;
+  max-width: 11ch;
+}
+
+.hero .lede {
+  margin: 28px 0 0;
+  max-width: 34em;
+  font-size: clamp(18px, 1.6vw, 20px);
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 36px; }
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 0 20px;
+  border-radius: 10px;
+  font: 600 16px/1 var(--sans);
+  text-decoration: none;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.button.primary { background: var(--ember); color: var(--ink); }
+.button.primary:hover { background: #ffa15f; }
+.button.secondary { color: #fff; border: 1px solid rgba(255, 255, 255, 0.35); }
+.button.secondary:hover { border-color: #fff; }
+
+.hero .note { margin: 20px 0 0; font-size: 14px; color: rgba(255, 255, 255, 0.62); max-width: 34em; }
+
+/* ---------- Menu bar popover (a faithful copy of MenuContentView) ---------- */
+
+.popover {
+  position: relative;
+  width: 380px;
+  max-width: 100%;
+  color: #1d1d1f;
+  background: rgba(246, 246, 248, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(3, 8, 18, 0.55), 0 0 0 0.5px rgba(255, 255, 255, 0.3) inset;
+  font-size: 13px;
+  line-height: 1.35;
+  transform-origin: 85% 0;
+  animation: drop 0.42s cubic-bezier(0.2, 0.9, 0.3, 1.15) 0.25s both;
+}
+/* On wide screens the menu hangs from the menu bar, under the CX glyph, like the real one. */
+@media (min-width: 961px) {
+  .popover { justify-self: end; margin-top: calc(-1 * clamp(40px, 8vw, 96px) + 6px); }
+}
+@keyframes drop {
+  from { opacity: 0; transform: translateY(-14px) scale(0.96); }
+  to { opacity: 1; transform: none; }
+}
+
+.pop-head { padding: 12px; }
+.pop-row { display: flex; align-items: center; gap: 8px; }
+.pop-row .profile { font-weight: 600; font-size: 14px; }
+.pop-row .profile::after { content: " ⌄"; font-weight: 400; color: #6e6e73; }
+.pop-row .status { margin-left: auto; font-size: 11px; color: #6e6e73; }
+.pop-summary { margin: 8px 0 10px; font-size: 11px; color: #6e6e73; }
+.pop-buttons { display: flex; gap: 8px; }
+.pop-buttons span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 9px;
+  font-size: 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.14);
+  border-radius: 5px;
+  box-shadow: 0 1px 0 rgba(0, 0, 0, 0.04);
+}
+
+.dot { width: 8px; height: 8px; border-radius: 50%; flex: none; background: #8e8e93; }
+.dot.on { background: var(--ok); }
+
+.pop-divider { height: 1px; background: rgba(0, 0, 0, 0.1); }
+
+.pop-list { list-style: none; margin: 0; padding: 6px; }
+.pop-list li { display: flex; align-items: center; gap: 10px; padding: 6px; border-radius: 6px; }
+.pop-list li:first-child { background: rgba(0, 0, 0, 0.05); }
+.pop-list .name { display: block; font-size: 13px; }
+.pop-list .image { display: block; font-size: 10px; color: #6e6e73; }
+.pop-list .ctl { margin-left: auto; display: flex; gap: 10px; color: #6e6e73; }
+.pop-list svg { width: 13px; height: 13px; }
+
+.pop-foot { display: flex; align-items: center; gap: 14px; padding: 8px 12px; font-size: 11px; color: #6e6e73; }
+.pop-foot .push { margin-left: auto; }
+.pop-foot b { font-weight: 400; color: #0a64d8; font-size: 12px; }
+
+/* ---------- Sections ---------- */
+
+section { padding: clamp(56px, 8vw, 104px) 0; }
+section + section { border-top: 1px solid var(--rule); }
+
+h2 {
+  margin: 0 0 12px;
+  font: 700 clamp(30px, 3.8vw, 44px)/1.08 var(--display);
+  letter-spacing: -0.025em;
+  max-width: 18ch;
+}
+
+.intro { margin: 0; max-width: var(--measure); color: var(--muted); font-size: 18px; }
+
+/* Screens, grouped exactly like the app's sidebar. */
+.sidebar {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin-top: 48px;
+  border-top: 2px solid var(--text);
+}
+.group { padding: 20px 24px 8px 0; }
+.group + .group { padding-left: 24px; border-left: 1px solid var(--rule); }
+.group h3 { margin: 0 0 14px; font: 600 15px/1.2 var(--sans); color: var(--muted); }
+.group dl { margin: 0; }
+.group dt { font-weight: 600; }
+.group dd { margin: 2px 0 16px; color: var(--muted); font-size: 15px; line-height: 1.45; }
+
+/* Two-column statements. */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(32px, 6vw, 96px);
+}
+.points { list-style: none; margin: 0; padding: 0; }
+.points li { padding: 18px 0; border-top: 1px solid var(--rule); }
+.points li:first-child { border-top: 0; padding-top: 4px; }
+.points strong { display: block; font-size: 18px; margin-bottom: 4px; }
+.points span { color: var(--muted); }
+
+/* Install: a real sequence, so it is numbered. */
+.steps { list-style: none; counter-reset: step; margin: 40px 0 0; padding: 0; max-width: 820px; }
+.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 16px; padding: 0 0 32px; }
+.steps > li::before {
+  content: counter(step);
+  grid-row: span 3;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--ember);
+  font-weight: 700;
+  color: var(--ember-deep);
+}
+.steps h3 { margin: 4px 0 0; font-size: 19px; }
+.steps p { margin: 4px 0 12px; color: var(--muted); max-width: var(--measure); }
+
+.code-block { position: relative; }
+
+.code {
+  margin: 0;
+  background: var(--code-bg);
+  color: var(--code-text);
+  border-radius: 10px;
+  padding: 16px 64px 16px 18px;
+  font: 14px/1.6 var(--mono);
+  overflow-x: auto;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.code code { white-space: pre; }
+.copy {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  min-height: 32px;
+  padding: 0 10px;
+  font: 500 13px/1 var(--sans);
+  color: var(--code-text);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  cursor: pointer;
+}
+.copy:hover { background: rgba(255, 255, 255, 0.18); }
+
+.subhead { margin: 16px 0 0; font-size: 19px; }
+
+.requirements { margin: 8px 0 0; display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 10px 28px; max-width: 760px; }
+.requirements dt { font-weight: 600; }
+.requirements dd { margin: 0; color: var(--muted); }
+
+footer { padding: 40px 0 56px; border-top: 1px solid var(--rule); color: var(--muted); font-size: 15px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; }
+footer p { margin: 0; max-width: var(--measure); }
+footer nav { display: flex; gap: 20px; margin-left: auto; }
+
+/* ---------- Screenshots ---------- */
+
+/* Captured with `screencapture -o` (no shadow, transparent rounded corners), so the shadow follows the
+   window shape through drop-shadow instead of box-shadow. */
+.shots { padding: clamp(40px, 6vw, 72px) 0 clamp(56px, 8vw, 96px); }
+.shot { margin: 0; }
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: drop-shadow(0 18px 36px rgba(14, 23, 41, 0.22)) drop-shadow(0 2px 6px rgba(14, 23, 41, 0.12));
+}
+.shot figcaption { margin-top: 14px; color: var(--muted); font-size: 15px; max-width: var(--measure); }
+.shot-main figcaption { font-size: 17px; }
+.shot-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(20px, 3vw, 36px);
+  margin-top: clamp(40px, 6vw, 64px);
+}
+@media (max-width: 960px) { .shot-grid { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-color-scheme: dark) {
+  .shot img { filter: drop-shadow(0 18px 40px rgba(0, 0, 0, 0.55)); }
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 960px) {
+  .hero-body { grid-template-columns: minmax(0, 1fr); }
+  .popover { justify-self: start; }
+  .sidebar { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .group:nth-child(3) { padding-left: 0; border-left: 0; }
+  .group:nth-child(n + 3) { border-top: 1px solid var(--rule); }
+  .split { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (max-width: 600px) {
+  body { font-size: 16px; }
+  .menubar .item { display: none; }
+  .sidebar { grid-template-columns: minmax(0, 1fr); }
+  .group, .group + .group { padding-left: 0; border-left: 0; }
+  .group + .group { border-top: 1px solid var(--rule); }
+  .requirements { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .requirements dd { margin-bottom: 12px; }
+  footer nav { margin-left: 0; }
+  .code { padding: 50px 18px 16px; }
+  .copy { top: 8px; }
+  .steps > li { grid-template-columns: 36px minmax(0, 1fr); gap: 4px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popover { animation: none; }
+  .button { transition: none; }
+}
+
+/* Inline code in running text. */
+dd code, .points code, .intro code { font: 0.9em var(--mono); padding: 1px 5px; border-radius: 4px; background: rgba(19, 78, 74, 0.1); }

@@ -1,0 +1,24 @@
+name: Feature request
+description: An idea to improve ColimaX
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: Check docs/FEATURES.md and docs/ROADMAP.md first — the feature may already be planned.
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem to solve
+      description: What difficulty are you running into when using Colima/Docker?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you have tried

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    name: Build (0 warnings) + unit tests
+    runs-on: xcode-27 # Apple Silicon, macOS 27 (preview image), matches local Xcode 27.2
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 27.2
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '27.2'
+
+      - name: Show toolchain versions
+        run: |
+          swift --version
+          sw_vers
+
+      - name: Build app (Swift 6 strict, warnings as errors)
+        run: WARNINGS_AS_ERRORS=1 scripts/dev-build.sh
+
+      - name: Unit tests (integration tests skip; no Colima on the runner)
+        run: scripts/run-tests.sh
+
+      - name: Package .app (ad-hoc signed) to exercise the script
+        run: scripts/build-app.sh
+
+  ui-tests:
+    name: UI tests (XCUITest, fixtures)
+    runs-on: xcode-27
+    timeout-minutes: 30
+    # New in 1.0.0 and not yet run on a hosted runner: keep it informational until it has passed there.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Select Xcode 27.2
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '27.2'
+
+      - name: Build UI-test app + run XCUITest
+        run: scripts/ui-tests.sh

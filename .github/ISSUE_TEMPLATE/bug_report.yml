@@ -1,0 +1,59 @@
+name: Bug report
+description: ColimaX behaves incorrectly, hangs or crashes
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. **Please do not report security vulnerabilities here** — see SECURITY.md.
+        Before submitting: open the **Diagnostics** screen and capture the results (redact sensitive information if needed).
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Describe the bug and what you expected to happen.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open the … screen
+        2. Click …
+        3. See the error …
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: ColimaX version
+      description: ColimaX → About
+      placeholder: 1.0.0 (1)
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and chip
+      placeholder: macOS 15.1, Apple M2
+    validations:
+      required: true
+  - type: input
+    id: colima
+    attributes:
+      label: Colima / Docker
+      description: Output of `colima version` and `docker version --format '{{.Server.Version}}'`
+    validations:
+      required: true
+  - type: dropdown
+    id: vmtype
+    attributes:
+      label: VM type
+      options: [vz, qemu, krunkit, unknown]
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / screenshots
+      description: Paste relevant logs. Remove passwords and tokens before submitting.
+      render: text

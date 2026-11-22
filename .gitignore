@@ -1,0 +1,25 @@
+# Build output
+/build/
+/.build/
+/.swiftpm/
+*.xcodeproj/xcuserdata/
+*.xcworkspace/xcuserdata/
+DerivedData/
+
+# macOS
+.DS_Store
+
+# Backups / exports created during manual testing
+*.partial-*
+
+# Claude Code: ghi chú làm việc và trạng thái cục bộ (không đưa lên repo)
+/.claude/session-notes/
+/.claude/.cc-writes/
+/.claude/settings.local.json
+
+# Internal AI task briefs
+/prompt/*
+/.build-uitest/
+
+# Playwright MCP screenshots and snapshots
+/.playwright-mcp/

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ColimaX: Colima và Docker cho macOS</title>
+  <meta name="description" content="ColimaX là app macOS native, miễn phí, để chạy Colima và Docker trên Apple Silicon: VM và profile, container, Compose, backup và chẩn đoán trong một cửa sổ và trên menu bar.">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:title" content="ColimaX">
+  <meta property="og:description" content="App macOS native cho Colima và Docker trên Apple Silicon.">
+  <meta property="og:image" content="../icon.png">
+  <link rel="icon" type="image/png" href="../icon.png">
+  <link rel="apple-touch-icon" href="../icon.png">
+  <link rel="alternate" hreflang="en" href="../">
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<a class="skip" href="#main">Bỏ qua, tới nội dung</a>
+
+<header class="hero">
+  <div class="menubar">
+    <span class="app" aria-hidden="true">ColimaX</span>
+    <span class="item" aria-hidden="true">File</span>
+    <span class="item" aria-hidden="true">Edit</span>
+    <span class="item" aria-hidden="true">Go</span>
+    <span class="item" aria-hidden="true">Window</span>
+    <span class="item" aria-hidden="true">Help</span>
+    <span class="spacer"></span>
+    <a class="lang" href="../" hreflang="en" lang="en">English</a>
+    <span class="glyph" aria-hidden="true">
+      <svg width="21" height="18" viewBox="223 212 659 576" fill="none" stroke="#fff" stroke-linecap="round">
+        <!-- Same geometry as MenuBarIcon.swift (1024-pt design space, y flipped for SVG). -->
+        <path d="M640 330A230 230 0 1 0 640 694" stroke-width="92"/>
+        <path d="M560 604L760 404M760 604L560 404" stroke-width="78"/>
+        <circle cx="830" cy="264" r="52" fill="#fff" stroke="none"/>
+      </svg>
+    </span>
+    <span class="clock" aria-hidden="true">9:41</span>
+  </div>
+
+  <div class="wrap hero-body">
+    <div>
+      <div class="brand"><img src="../icon.png" alt="" width="56" height="56"><span>ColimaX</span></div>
+      <h1>Colima, trong một cửa sổ Mac.</h1>
+      <p class="lede">App macOS native cho Colima và Docker trên Apple Silicon. Bật VM, quản lý container và project Compose, backup volume và database, tìm ra chỗ đang lỗi, ngay trong một cửa sổ hoặc từ menu bar.</p>
+      <div class="actions">
+        <a class="button primary" href="#install">Build từ mã nguồn</a>
+        <a class="button secondary" href="https://github.com/trongcong/colimax">Xem trên GitHub</a>
+      </div>
+      <p class="note">Miễn phí, mã nguồn mở theo giấy phép MIT.</p>
+    </div>
+
+    <div class="popover" role="img" aria-label="Menu của ColimaX trên menu bar: profile default đang chạy với 4 CPU và 6 GiB, 2 trên 3 container đang chạy.">
+      <div class="pop-head">
+        <div class="pop-row"><span class="dot on"></span><span class="profile">default</span><span class="status">Running</span></div>
+        <div class="pop-summary">4 CPU · 6 GiB · 100 GiB disk · docker</div>
+        <div class="pop-buttons">
+          <span><svg width="9" height="9" viewBox="0 0 9 9"><rect width="9" height="9" rx="1.5" fill="currentColor"/></svg>Stop</span>
+          <span><svg width="11" height="11" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg>Restart</span>
+        </div>
+      </div>
+      <div class="pop-divider"></div>
+      <ul class="pop-list">
+        <li><span class="dot on"></span><span><span class="name">web</span><span class="image">nginx:latest</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="currentColor"/></svg></span></li>
+        <li><span class="dot on"></span><span><span class="name">db</span><span class="image">postgres:16</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M10 6a4 4 0 1 1-1.2-2.85"/><path d="M9.2 1.2v2.4H6.8"/></svg><svg viewBox="0 0 12 12"><rect x="2" y="2" width="8" height="8" rx="1.5" fill="currentColor"/></svg></span></li>
+        <li><span class="dot"></span><span><span class="name">worker</span><span class="image">ghcr.io/acme/worker:2.1</span></span>
+          <span class="ctl"><svg viewBox="0 0 12 12"><path d="M3 2l7 4-7 4z" fill="currentColor"/></svg></span></li>
+      </ul>
+      <div class="pop-divider"></div>
+      <div class="pop-foot"><span>2/3 đang chạy</span><b class="push">Mở ColimaX</b><b>Thoát</b></div>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="shots" aria-label="Ảnh chụp màn hình">
+  <div class="wrap">
+    <figure class="shot shot-main">
+      <img src="../img/containers.png" width="2200" height="1460" loading="eager" alt="Màn hình Containers: hai project Compose và các container độc lập kèm health và port; phần chi tiết của shop-db-1 hiện restart policy, giới hạn RAM, mount và biến môi trường với mật khẩu đã được che.">
+      <figcaption>Containers, kèm health, port và chi tiết. Mật khẩu luôn được che cho tới khi bạn chọn hiện.</figcaption>
+    </figure>
+    <div class="shot-grid">
+      <figure class="shot">
+        <img src="../img/dashboard.png" width="2200" height="1460" loading="lazy" alt="Dashboard: VM đang chạy, mức dùng CPU, RAM và disk bên trong VM, thông tin Docker engine và dung lượng.">
+        <figcaption>Dashboard: VM thực sự đang dùng bao nhiêu.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../img/monitoring.png" width="2200" height="1460" loading="lazy" alt="Màn hình Monitoring: biểu đồ CPU và RAM trực tiếp, network và disk I/O theo từng container.">
+        <figcaption>Monitoring: biểu đồ trực tiếp theo container.</figcaption>
+      </figure>
+      <figure class="shot">
+        <img src="../img/diagnostics.png" width="2200" height="1460" loading="lazy" alt="Màn hình Diagnostics: các bước kiểm tra runtime và cảnh báo bảo mật như docker.sock bị mount và port mở ra mọi interface.">
+        <figcaption>Diagnostics: kiểm tra cấu hình và security audit chỉ đọc.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+  <section>
+    <div class="wrap">
+      <h2>Mọi màn hình cần dùng, trong một sidebar.</h2>
+      <p class="intro">Nhóm đúng như trong app. Các màn hình Docker gọi thẳng Docker Engine API qua socket của Colima, nên nhanh và không cần cài thêm công cụ.</p>
+      <div class="sidebar">
+        <div class="group">
+          <h3>Tổng quan</h3>
+          <dl>
+            <dt>Dashboard</dt><dd>Trạng thái VM, bật, tắt, khởi động lại, mức dùng CPU, RAM và disk thật bên trong VM.</dd>
+            <dt>Monitoring</dt><dd>CPU, RAM, mạng và disk I/O theo từng container, có cảnh báo và lịch sử 3 ngày.</dd>
+            <dt>Diagnostics</dt><dd>Kiểm công cụ còn thiếu, Docker context sai, VZ, virtiofs và Rosetta, xung đột port và cấu hình container rủi ro.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Docker</h3>
+          <dl>
+            <dt>Containers</dt><dd>Start, stop, logs, exec và inspect, kèm health, exit code, secret được che.</dd>
+            <dt>Compose</dt><dd>Tìm project từ label hoặc thư mục; up, down, logs và restart từng service.</dd>
+            <dt>Images, Volumes, Networks</dt><dd>Pull có tiến độ, phát hiện image amd64, gắn container vào network.</dd>
+            <dt>Storage</dt><dd>Xem cái gì đang chiếm chỗ và dọn sau khi xác nhận.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Công cụ</h3>
+          <dl>
+            <dt>Backups</dt><dd>Backup volume và database theo lịch, giữ các bản mới nhất.</dd>
+            <dt>Topology</dt><dd>Đồ thị network, container và phụ thuộc Compose.</dd>
+            <dt>Tên miền cục bộ</dt><dd>Vào container qua <code>name.localhost</code>, có HTTPS local.</dd>
+          </dl>
+        </div>
+        <div class="group">
+          <h3>Cài đặt</h3>
+          <dl>
+            <dt>Runtime Settings</dt><dd>Profile, CPU, RAM, disk, VM type, mount, Rosetta và Kubernetes. Thay đổi phải tạo lại VM được báo trước.</dd>
+            <dt>Tuỳ chọn</dt><dd>Giao diện, ngôn ngữ, icon Dock, mở cùng máy, tự bật VM, thông báo.</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>Cẩn thận với dữ liệu của bạn.</h2>
+        <p class="intro">Một công cụ container có thể xoá cả database chỉ bằng một cú click. ColimaX được làm để điều đó không xảy ra.</p>
+      </div>
+      <ul class="points">
+        <li><strong>Thao tác phá huỷ luôn hỏi trước</strong><span>Xoá, prune và dừng VM đều cần xác nhận. Restore database hay thu nhỏ disk yêu cầu gõ đúng tên.</span></li>
+        <li><strong>Backup tin cậy được</strong><span>Volume được lưu thành <code>.tar</code> kèm manifest SHA-256, và mọi bản backup đều được kiểm trước khi restore. Dump MySQL, MariaDB, PostgreSQL và Redis chạy ngay trong container, nên thông tin đăng nhập không ra khỏi đó.</span></li>
+        <li><strong>Secret luôn được che</strong><span>Mật khẩu và token trong biến môi trường bị che cho đến khi bạn chọn hiện.</span></li>
+        <li><strong>Security audit chỉ đọc</strong><span>Chỉ ra container privileged, <code>docker.sock</code> bị mount, host network và port mở ra mọi interface, mà không thay đổi gì.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap split">
+      <div>
+        <h2>Native, không cần cài thêm gì.</h2>
+      </div>
+      <ul class="points">
+        <li><strong>SwiftUI, không phụ thuộc</strong><span>Viết bằng Swift 6 với strict concurrency. Không Electron, không kèm runtime, không package bên thứ ba.</span></li>
+        <li><strong>Làm cho Apple Silicon</strong><span>Hiểu profile Colima, VZ, virtiofs và Rosetta, và cảnh báo khi image phải chạy giả lập.</span></li>
+        <li><strong>Luôn cập nhật</strong><span>Theo dõi Docker events và thư mục Colima, nên cửa sổ đổi ngay khi có gì thay đổi.</span></li>
+        <li><strong>Tiếng Anh và tiếng Việt</strong><span>Theo ngôn ngữ hệ thống, hoặc chọn trong Tuỳ chọn.</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Cài đặt</h2>
+      <p class="intro">Chưa có bản tải về đã ký, nên hãy build app từ mã nguồn. Mất vài phút.</p>
+      <ol class="steps">
+        <li>
+          <h3>Cài Colima và Docker</h3>
+          <p>Nếu bỏ qua bước này, Setup Assistant trong ColimaX sẽ liệt kê những gì còn thiếu và chạy lệnh giúp bạn sau khi bạn xác nhận.</p>
+          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+        <li>
+          <h3>Build app</h3>
+          <p>Cần bộ công cụ Swift 6 đi kèm Xcode.</p>
+          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
+cd colimax
+scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+        <li>
+          <h3>Mở app</h3>
+          <p>Copy vào Applications để thông báo và mở cùng máy hoạt động.</p>
+          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
+open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+      </ol>
+
+      <h3 class="subhead">Yêu cầu</h3>
+      <dl class="requirements">
+        <dt>macOS</dt><dd>14 Sonoma trở lên</dd>
+        <dt>Máy Mac</dt><dd>Apple Silicon (M1 trở lên)</dd>
+        <dt>Colima</dt><dd>Bắt buộc, dùng runtime docker</dd>
+        <dt>docker CLI</dt><dd>Chỉ cần cho màn hình Compose và mở shell trong Terminal</dd>
+        <dt>Trivy hoặc Docker Scout</dt><dd>Tuỳ chọn, để quét lỗ hổng image</dd>
+      </dl>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>ColimaX là dự án độc lập, không liên kết với dự án Colima. Giấy phép MIT.</p>
+    <nav aria-label="Liên kết">
+      <a href="https://github.com/trongcong/colimax">GitHub</a>
+      <a href="https://github.com/trongcong/colimax/issues">Báo lỗi</a>
+      <a href="../" hreflang="en" lang="en">English</a>
+    </nav>
+  </div>
+</footer>
+
+<script src="../copy.js"></script>
+</body>
+</html>
