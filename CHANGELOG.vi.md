@@ -8,6 +8,10 @@ Mọi thay đổi đáng chú ý của ColimaX được ghi trong file này. B�
 
 ## [Unreleased]
 
+### Added
+
+- Trợ lý cài đặt: chuyển từ OrbStack / Docker Desktop sang Colima (G27). Phát hiện runtime khác và, sau khi xác nhận từng bước, trỏ context của docker CLI sang profile đang chọn (có Chuyển lại), thay credential helper `desktop` của Docker Desktop bằng `osxkeychain`, dời các link hỏng trong `cli-plugins` và thoát app kia. Với `/var/run/docker.sock` chỉ hiện lệnh `sudo` thay vì tự chạy. Tự mở khi khởi động nếu runtime khác vẫn đang giữ docker CLI.
+
 ## [1.0.0-beta.1] - 2026-11-22
 
 Bản pre-release đầu tiên của **1.0.0**. Ký ad-hoc, chưa notarize bởi Apple (xem [docs/RELEASE.vi.md](docs/RELEASE.vi.md) §3.6). Mục 1.0.0 chính thức sẽ lặp lại danh sách này cùng các bản sửa lỗi trong giai đoạn beta.

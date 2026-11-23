@@ -106,6 +106,7 @@ final class AppStore {
         Task {
             await setupModel.checkAtLaunch()
             await refreshProfiles()
+            await setupModel.checkRuntimesAtLaunch()
             if settings.autoStartVM, !isRunning, selectedProfile != nil {
                 runtimeModel.startVM()
             }

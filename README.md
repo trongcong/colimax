@@ -94,6 +94,8 @@ brew install colima docker docker-compose
 
 On first launch, if any of these tools is missing, the **Setup Assistant** lists what is installed and can run the `brew install` command above for you after you confirm. It does not install Homebrew itself (that needs your administrator password); it shows the official install command to run in Terminal. Open it again any time from the app menu: **Setup Assistant…**.
 
+Coming from **OrbStack** or **Docker Desktop**? The Setup Assistant detects them and, after you confirm each step, points the `docker` CLI context at your Colima profile (with **Switch Back**), replaces Docker Desktop's credential helper with the macOS Keychain, moves aside broken CLI plugin links and can quit the other app. `/var/run/docker.sock` needs `sudo`, so the assistant only shows the command to copy. Images and volumes are not moved: pull or rebuild them on Colima, and back up volume data you need first.
+
 Docker screens only work when the profile uses the `docker` runtime.
 
 ## Installation

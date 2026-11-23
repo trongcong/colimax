@@ -15,7 +15,7 @@ Kết quả hiện tại của từng tầng test nằm trong [FEATURES.vi.md](F
 | Docker Engine API thật | Integration test có điều kiện | Chỉ chạy khi đặt cờ và VM phản hồi |
 | VM / profile Colima thật | Integration test có điều kiện riêng (`COLIMAX_INTEGRATION_VM=1`) | Tạo một profile `colimax-test-*` nhỏ rồi xoá sau đó |
 | Logic của checklist (xác nhận khi đổi runtime, bộ lọc Diagnostics, chọn trong Storage, Setup Assistant, xác nhận stop VM, thông báo) | Unit test với fake (`ChecklistTests.swift`) | Các mục của checklist thủ công không cần UI |
-| UI: xác nhận, form, sheet, phím tắt, các trạng thái của Setup Assistant, che secret | XCUITest với fixture và kịch bản fixture (`scripts/ui-tests.sh`, xem [UI test](#ui-test-xcuitest)) | Cần Xcode + quyền Accessibility. 31 test, khoảng 6,5 phút. Chưa chạy trong CI |
+| UI: xác nhận, form, sheet, phím tắt, các trạng thái của Setup Assistant, che secret | XCUITest với fixture và kịch bản fixture (`scripts/ui-tests.sh`, xem [UI test](#ui-test-xcuitest)) | Cần Xcode + quyền Accessibility. 31 test, khoảng 6,5 phút. Chạy trong CI trên runner `xcode-27` dưới dạng job tham khảo (runner không có docker CLI nên `testComposeDownAsksFirst` bị skip; khi fail, kết quả được upload thành artifact) |
 | Các luồng UI còn lại | Kiểm tra thủ công theo checklist bên dưới | Tích hợp hệ thống, hình ảnh, hộp thoại lưu file, VM thật |
 
 ## Chạy test
@@ -47,7 +47,7 @@ Biến môi trường khởi chạy mà bản build UI test hiểu (`UITestApp.l
 | Biến | Tác dụng |
 |---|---|
 | `COLIMAX_UI_TEST_SCREEN` | Màn hình mở khi khởi động (raw value của `Screen`) |
-| `COLIMAX_UI_TEST_SCENARIO` | Biến thể fixture (`UITestScenario`): `vm-stopped`, `slow-op` (thao tác VM không bao giờ xong cho tới khi bị huỷ), `no-brew`, `missing-tools`, `compose-plugin`, `no-profile`, `elasticsearch` (thêm một cluster không có `path.repo`), `demo` (khối lượng công việc giống thật để chụp ảnh cho trang giới thiệu, `DemoFixtures`) |
+| `COLIMAX_UI_TEST_SCENARIO` | Biến thể fixture (`UITestScenario`): `vm-stopped`, `slow-op` (thao tác VM không bao giờ xong cho tới khi bị huỷ), `no-brew`, `missing-tools`, `compose-plugin`, `no-profile`, `other-runtime` (OrbStack đang chạy và được chọn, còn sót credential helper của Docker Desktop và một link plugin hỏng; `FakeRuntimeSwitcher`), `elasticsearch` (thêm một cluster không có `path.repo`), `demo` (khối lượng công việc giống thật để chụp ảnh cho trang giới thiệu, `DemoFixtures`) |
 | `COLIMAX_UI_TEST_FOCUS` | Container demo được chọn sẵn ở màn hình Containers (`DemoFixtures.containerID`, ví dụ `db`) |
 | `COLIMAX_UI_TEST_DETAIL_TAB` | Tab mở sẵn trong phần chi tiết container: `Info`, `Logs` (mặc định), `Inspect`, `Exec` |
 | `COLIMAX_UI_TEST_OPEN_FILE` | File mà hộp thoại mở file trả về (`FilePanels.open`), ví dụ một dump để restore |
@@ -59,7 +59,7 @@ Biến môi trường khởi chạy mà bản build UI test hiểu (`UITestApp.l
   - xác nhận destructive, mỗi test kiểm Cancel không đổi gì và, khi an toàn, xác nhận thì thao tác chạy đúng: xoá container, dừng VM khi có container đang chạy, xoá profile, xoá / prune volume, prune toàn bộ image không dùng, `docker compose down` (chỉ nhánh Cancel: xác nhận sẽ gọi compose CLI thật; tự skip khi chưa cài);
   - che secret: `POSTGRES_PASSWORD` của container `db` bị che cho tới khi bật "Show Secrets".
 - `ChecklistUITests` (18 test): ⌘1…⌘9 / menu Go / ⌘,; trạng thái chờ khi VM đã dừng; huỷ thao tác dài; thoát khi đang có thao tác và khi không có; Runtime Settings (tên profile không hợp lệ, đổi CPU thì hỏi restart, đổi arch thì hỏi tạo lại, gõ tên xác nhận để thu nhỏ disk và công tắc unlock tự tắt lại); Copy KEY=VALUE bị ẩn khi đang che; restore database gõ tên xác nhận và lỗi preflight; nút Pull bị vô hiệu với reference không hợp lệ và cảnh báo Arch; quét lỗ hổng khi không có scanner; form tạo network và xác nhận xoá / prune; xác nhận rebuild service compose (chỉ nhánh Cancel); Elasticsearch không có `path.repo`; UI tiếng Việt.
-- `SetupUITests` (5 test): đã cài đủ công cụ, không có Homebrew, thiếu công cụ (đúng lệnh `brew install`, cài giả, các dòng được làm mới), compose plugin chưa được nạp (ghi một `DOCKER_CONFIG` tạm), chưa có profile (Start Colima).
+- `SetupUITests` (6 test): đã cài đủ công cụ, không có Homebrew, thiếu công cụ (đúng lệnh `brew install`, cài giả, các dòng được làm mới), compose plugin chưa được nạp (ghi một `DOCKER_CONFIG` tạm), chưa có profile (Start Colima), có runtime khác (G27: tự mở khi khởi động, chuyển context / credentials / plugin / thoát app đều hỏi trước).
 
 Điều kiện: có Xcode (không chỉ Command Line Tools); lần chạy đầu cho phép test runner trong System Settings → Privacy & Security → Accessibility (và Automation nếu được hỏi). Chạy trong phiên desktop đã đăng nhập; test sẽ điều khiển chuột và bàn phím.
 
@@ -138,6 +138,7 @@ File test nằm trong `Tests/ColimaXTests/`.
 | `IntegrationTests.swift` | `IntegrationTests` (25) | Xem mục ở trên |
 | `VMProfileIntegrationTests.swift` | `VMProfileIntegrationTests` (1) | Xem mục ở trên (cần `COLIMAX_INTEGRATION_VM=1`) |
 | `SetupTests.swift` | `SetupTests` (11) | Setup Assistant: formula còn thiếu, phát hiện compose plugin, allowlist tham số `brew install`, merge / backup / 0600 cho docker `config.json` |
+| `RuntimeSwitchTests.swift` | `RuntimeSwitchTests` (19) | Chuyển từ OrbStack / Docker Desktop (G27): logic báo cáo context / credentials / plugin / `/var/run/docker.sock`, sửa `config.json` giữ các key khác, live switcher trên `DOCKER_CONFIG` tạm (backup, 0600, từ chối context không tồn tại, chỉ dời link treo trong `cli-plugins`, không bao giờ xoá), `SetupModel` chuyển / chuyển lại với fake |
 | `ChecklistTests.swift` | `ChecklistLogicTests` (3), `ChecklistStoreTests` (11) | Các mục của checklist thủ công chuyển sang unit test: kế hoạch đổi runtime (restart / tạo lại / gõ tên để thu nhỏ), bộ lọc và thứ tự Diagnostics, Storage chỉ xoá volume không dùng được tick, Setup Assistant khi khởi động / cài đặt / huỷ, xác nhận stop / restart VM chỉ khi có container đang chạy, thêm compose project mà không khởi động, thông báo (container thoát, VM, lịch thất bại, cảnh báo tài nguyên một lần) |
 | `StoreTests.swift` | `StoreTests` (25) | `AppStore` + model theo màn hình + `OperationCenter` với `FakeColima` / `FakeDocker`: kết nối và reload, một endpoint lỗi, xoá lỗi, events, thao tác VM / profile, khoá busy, giới hạn log, protocol host, fixture UI test |
 | `TransferFakeTests.swift` | `TransferFakeTests` (10) | Service với `FakeDocker`: backup / restore volume khứ hồi qua helper, file bị sửa bị từ chối trước khi gọi Docker, tải lỗi giữ file cũ, dọn helper cũ, dump database / lỗi / restore, backup theo lịch, Caddyfile trước khi start proxy |
@@ -198,6 +199,16 @@ Logic cài đặt / cấu hình: `SetupTests`. Các trạng thái của sheet l�
 - [x] ~~Compose plugin đã cài nhưng chưa được nạp: **Configure Plugin** hỏi xác nhận, cập nhật `config.json` của docker CLI (giữ các key khác, ghi `config.json.colimax-backup`)~~ → UI `testConfigurePluginUpdatesTheDockerConfigAndKeepsOtherKeys`
 - [x] ~~Chưa có profile Colima nào: **Start Colima** khởi động profile `default` và log stream trong sheet~~ → UI `testNoProfileStartColimaStartsTheDefaultProfile`
 - [ ] Trên Mac sạch (hoặc một VM macOS mới): chạy `brew install colima docker docker-compose` thật từ assistant, sau đó `docker compose version` chạy được sau khi **Configure Plugin**.
+
+### Chuyển từ OrbStack / Docker Desktop (G27)
+
+Logic báo cáo và sửa config: `RuntimeSwitchTests`. Luồng trong sheet: UI `SetupUITests.testOtherRuntimeOpensAtLaunchAndEveryChangeAsksFirst` (pass trên máy local).
+
+- [ ] Có OrbStack đã cài và đang chạy (context `orbstack`) cùng một profile Colima đang chạy: assistant tự mở khi khởi động; **Switch to Colima** rồi `docker context show` in ra `colima` và `docker ps` liệt kê container của Colima; **Switch Back** khôi phục `orbstack`.
+- [ ] **Quit OrbStack** thoát được OrbStack; mở lại OrbStack thì nó có / không đổi context về nó (ghi lại kết quả rồi chỉnh câu gợi ý).
+- [ ] Đã gỡ Docker Desktop nhưng `~/.docker/config.json` vẫn còn `credsStore: desktop`: dòng credentials màu đỏ; **Use macOS Keychain** (cài `docker-credential-helper` trước nếu cần), sau đó `docker pull` một image public chạy được.
+- [ ] Link treo `~/.docker/cli-plugins/docker-compose` do Docker Desktop để lại: **Move Aside**, rồi **Configure Plugin** nếu được đề nghị, sau đó `docker compose version` chạy được.
+- [ ] Lệnh `sudo ln -sf …` copy từ dòng `/var/run/docker.sock` chạy được trong Terminal, sau đó Testcontainers / IDE kết nối được tới Colima.
 
 ### Runtime (Dashboard, Runtime Settings, menu bar)
 

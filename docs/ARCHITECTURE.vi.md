@@ -101,7 +101,7 @@ Quy tắc phụ thuộc vẫn áp dụng bên trong và giữa các thư mục: 
 1. Khi một profile chuyển sang running, `AppStore.connectDocker` gọi `resolveEndpoint()`, tức `colima status --profile <p> --json`.
 2. `ColimaStatus.dockerSocketPath` lấy trường `docker_socket` và bỏ tiền tố `unix://`; `ColimaStatus.unixPath` chỉ chấp nhận đường dẫn tuyệt đối.
 3. `ColimaService.resolveDockerSocket` dùng giá trị đó; nếu `colima status` lỗi hoặc không trả về socket, nó quay về quy ước `$COLIMA_HOME/<profile>/docker.sock` (mặc định `~/.colima`).
-4. Mọi client (`AppStore.docker`, Compose, Terminal, Diagnostics) dùng chung `AppStore.socketPath`. Compose và Terminal nhận giá trị này qua `DOCKER_HOST=unix://…`, nên không phụ thuộc vào Docker context của CLI.
+4. Mọi client (`AppStore.docker`, Compose, Terminal, Diagnostics) dùng chung `AppStore.socketPath`. Compose và Terminal nhận giá trị này qua `DOCKER_HOST=unix://…`, nên không phụ thuộc vào Docker context của CLI. Lệnh `docker` trong terminal thì có phụ thuộc; Setup Assistant có thể trỏ context của nó sang profile đang chọn (G27, `Features/Setup/RuntimeSwitch.swift`).
 5. Diagnostics đọc `~/.docker/config.json` và `contexts/meta/*/meta.json` (`DockerContextReader`) để báo khi context của CLI trỏ sang nơi khác. Việc này chỉ mang tính thông tin; không sửa gì cả.
 
 `DockerClient` dùng HTTP/1.0: daemon không chunk response và tự đóng kết nối, nên stream chỉ cần đọc đến EOF. Hàm `dechunk` dự phòng vẫn còn. Path segment và giá trị query luôn được percent-encode (`DockerClient.escape`).

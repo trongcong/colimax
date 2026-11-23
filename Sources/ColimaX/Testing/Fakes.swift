@@ -671,6 +671,9 @@ enum UITestScenario: String {
     case composePlugin = "compose-plugin"
     /// Every tool installed, no Colima profile yet.
     case noProfile = "no-profile"
+    /// Every tool installed; OrbStack is running and owns the docker CLI context, Docker Desktop's
+    /// credential helper and a broken plugin link are left over (G27).
+    case otherRuntime = "other-runtime"
     /// Standard fixtures plus an Elasticsearch container whose cluster has no `path.repo`.
     case elasticsearch
     /// A realistic workload for screenshots of the landing page (`scripts/site-screenshots.sh`):
@@ -750,7 +753,8 @@ enum UITestFixtures {
             installPrerequisites: { formulae in tools.install(formulae) },
             watchesColimaDirectory: false,
             notify: { _, _ in },
-            scannerTools: { [] }
+            scannerTools: { [] },
+            runtimeSwitcher: scenario == .otherRuntime ? FakeRuntimeSwitcher.orbStack() : NoRuntimeSwitching()
         )
     }
 
@@ -817,6 +821,92 @@ final class FakePrerequisites: @unchecked Sendable {
             }
             continuation.onTermination = { _ in task.cancel() }
         }
+    }
+}
+
+/// Other Docker runtimes for the Setup Assistant (G27). The report is rebuilt from this state on every
+/// `inspect`, so changes made through the protocol show up like on a real Mac.
+final class FakeRuntimeSwitcher: RuntimeSwitching, @unchecked Sendable {
+    struct State {
+        var installed: [InstalledRuntime] = []
+        var currentContext: String?
+        var credsStore: String?
+        var keychainHelperInstalled = true
+        var brokenPlugins: [String] = []
+        var defaultSocketTarget: String?
+        /// Calls in order, e.g. `use colima`, `credentials`, `move docker-compose`, `quit orbStack`.
+        var calls: [String] = []
+    }
+
+    let state: Locked<State>
+    static let orbStackSocket = "/Users/demo/.orbstack/run/docker.sock"
+
+    init(_ state: State) { self.state = Locked(state) }
+
+    /// OrbStack running and selected; Docker Desktop installed but stopped, its credential helper and
+    /// a dangling compose plugin link left behind.
+    static func orbStack() -> FakeRuntimeSwitcher {
+        FakeRuntimeSwitcher(State(
+            installed: [
+                InstalledRuntime(runtime: .orbStack, appPath: "/Applications/OrbStack.app", isRunning: true),
+                InstalledRuntime(runtime: .dockerDesktop, appPath: "/Applications/Docker.app", isRunning: false),
+            ],
+            currentContext: "orbstack",
+            credsStore: "desktop",
+            keychainHelperInstalled: true,
+            brokenPlugins: ["docker-compose"],
+            defaultSocketTarget: orbStackSocket
+        ))
+    }
+
+    func inspect(profile: String, socketPath: String) async -> RuntimeSwitchReport? {
+        let s = state.current
+        let colimaName = profile == "default" ? "colima" : "colima-\(profile)"
+        return RuntimeSwitchReport(
+            profile: profile,
+            profileSocket: socketPath,
+            installed: s.installed,
+            dockerCLIPath: "/opt/homebrew/Cellar/docker/28.0.0/bin/docker",
+            currentContextName: s.currentContext,
+            contexts: [
+                DockerContextInfo(name: colimaName, endpoint: "unix://\(socketPath)"),
+                DockerContextInfo(name: "desktop-linux", endpoint: "unix:///Users/demo/.docker/run/docker.sock"),
+                DockerContextInfo(name: "orbstack", endpoint: "unix://\(Self.orbStackSocket)"),
+            ],
+            credsStore: s.credsStore,
+            keychainHelperInstalled: s.keychainHelperInstalled,
+            desktopHelperInstalled: false,
+            plugins: s.brokenPlugins.map {
+                PluginLink(path: "/Users/demo/.docker/cli-plugins/\($0)",
+                           destination: "/Applications/Docker.app/Contents/Resources/cli-plugins/\($0)", destinationExists: false)
+            },
+            defaultSocketTarget: s.defaultSocketTarget
+        )
+    }
+
+    func useContext(_ name: String) async throws {
+        state.withLock { $0.currentContext = name == "default" ? nil : name; $0.calls.append("use \(name)") }
+    }
+
+    func replaceDesktopCredentials() async throws {
+        state.withLock { $0.credsStore = "osxkeychain"; $0.calls.append("credentials") }
+    }
+
+    func moveAside(plugins: [String]) async throws -> [String] {
+        let names = plugins.map { ($0 as NSString).lastPathComponent }
+        state.withLock { s in
+            s.brokenPlugins.removeAll { names.contains($0) }
+            s.calls.append("move \(names.joined(separator: ","))")
+        }
+        return names.map { "/Users/demo/.docker/colimax-backup/cli-plugins/\($0)" }
+    }
+
+    func quit(_ runtime: OtherDockerRuntime) async -> Bool {
+        state.withLock { s in
+            for index in s.installed.indices where s.installed[index].runtime == runtime { s.installed[index].isRunning = false }
+            s.calls.append("quit \(runtime.rawValue)")
+        }
+        return true
     }
 }
 #endif

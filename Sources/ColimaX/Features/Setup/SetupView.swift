@@ -2,6 +2,7 @@ import SwiftUI
 
 /// Setup assistant (G26): checks for Homebrew, colima, the docker CLI and the compose plugin,
 /// installs missing tools via `brew install` after user confirmation, and starts the first profile.
+/// Also helps switch the docker CLI from OrbStack / Docker Desktop to Colima (G27, `RuntimeSwitchSection`).
 struct SetupSheet: View {
     @Environment(AppStore.self) private var store
     @Environment(\.dismiss) private var dismiss
@@ -29,6 +30,9 @@ struct SetupSheet: View {
                 }
                 .background(.quaternary.opacity(0.4), in: RoundedRectangle(cornerRadius: 8))
                 actions(report)
+                if let runtimes = store.setupModel.runtimes, runtimes.isRelevant {
+                    RuntimeSwitchSection(report: runtimes) { localError = $0 }
+                }
             } else {
                 HStack { ProgressView().controlSize(.small); Text("Checking installed tools…") }
                     .frame(maxWidth: .infinity, minHeight: 120)
@@ -136,7 +140,7 @@ struct SetupSheet: View {
 
     private var footer: some View {
         HStack {
-            Toggle("Show this assistant at launch when tools are missing", isOn: $showAtLaunch)
+            Toggle("Show this assistant at launch when something needs setting up", isOn: $showAtLaunch)
                 .accessibilityIdentifier("setup.showAtLaunch")
                 .onChange(of: showAtLaunch) { _, on in
                     UserDefaults.standard.set(!on, forKey: SetupModel.hideAtLaunchKey)

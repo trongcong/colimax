@@ -94,6 +94,8 @@ brew install colima docker docker-compose
 
 Lần mở đầu tiên, nếu thiếu công cụ nào, **Trợ lý cài đặt** liệt kê những gì đã có và có thể chạy lệnh `brew install` ở trên sau khi bạn xác nhận. App không tự cài Homebrew (cần mật khẩu quản trị), chỉ hiện lệnh cài chính thức để chạy trong Terminal. Mở lại bất kỳ lúc nào từ menu app: **Trợ lý cài đặt…**.
 
+Đang dùng **OrbStack** hoặc **Docker Desktop**? Trợ lý cài đặt phát hiện chúng và, sau khi bạn xác nhận từng bước, trỏ context của `docker` CLI sang profile Colima (có nút **Chuyển lại**), thay credential helper của Docker Desktop bằng macOS Keychain, dời các link plugin CLI bị hỏng và có thể thoát app kia. `/var/run/docker.sock` cần `sudo` nên trợ lý chỉ hiện lệnh để copy. Image và volume không được chuyển: hãy pull hoặc build lại trên Colima, và backup dữ liệu volume cần giữ trước.
+
 Các màn Docker chỉ hoạt động khi profile dùng runtime `docker`.
 
 ## Cài đặt

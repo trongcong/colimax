@@ -133,7 +133,7 @@ enum RuntimeDiagnostics {
                 add(.ok, "docker context", String(localized: "“\(context.name)” points to the selected profile"))
             } else {
                 add(.info, String(localized: "docker context differs from profile"), String(localized: "The CLI uses context “\(context.name)” (\(endpoint)). `docker` commands in the terminal will not run on profile \(profile.name)."),
-                    String(localized: "ColimaX uses its own DOCKER_HOST, so it is not affected. To switch the CLI: `docker context use colima` (or colima-\(profile.name))."))
+                    String(localized: "ColimaX uses its own DOCKER_HOST, so it is not affected. To switch the CLI: ColimaX menu ▸ Setup Assistant…, or `docker context use colima` (colima-\(profile.name) for other profiles)."))
             }
         }
 
@@ -399,24 +399,29 @@ enum DockerContextReader {
     /// The docker CLI's current context: `currentContext` from config.json, endpoint from
     /// `contexts/meta/*/meta.json`. The "default" context is reported as /var/run/docker.sock
     /// (`DOCKER_HOST` is not consulted).
-    static func current(dockerConfigDir: URL = FileManager.default.homeDirectoryForCurrentUser.appendingPathComponent(".docker")) -> DockerContextInfo? {
+    static func current(dockerConfigDir: URL = Prerequisites.dockerConfigDirectory) -> DockerContextInfo? {
         struct Config: Decodable { let currentContext: String? }
+        let configURL = dockerConfigDir.appendingPathComponent("config.json")
+        let name = (try? JSONDecoder().decode(Config.self, from: Data(contentsOf: configURL)))?.currentContext ?? "default"
+        if name == "default" { return DockerContextInfo(name: name, endpoint: "unix:///var/run/docker.sock") }
+        return all(dockerConfigDir: dockerConfigDir).first { $0.name == name } ?? DockerContextInfo(name: name, endpoint: nil)
+    }
+
+    /// Every context stored in `contexts/meta/*/meta.json` (not "default"), sorted by name.
+    static func all(dockerConfigDir: URL = Prerequisites.dockerConfigDirectory) -> [DockerContextInfo] {
         struct Meta: Decodable {
             struct Endpoint: Decodable { let Host: String? }
             let Name: String
             let Endpoints: [String: Endpoint]?
         }
-        let configURL = dockerConfigDir.appendingPathComponent("config.json")
-        let name = (try? JSONDecoder().decode(Config.self, from: Data(contentsOf: configURL)))?.currentContext ?? "default"
-        if name == "default" { return DockerContextInfo(name: name, endpoint: "unix:///var/run/docker.sock") }
         let metaDir = dockerConfigDir.appendingPathComponent("contexts/meta")
         let dirs = (try? FileManager.default.contentsOfDirectory(at: metaDir, includingPropertiesForKeys: nil)) ?? []
-        for dir in dirs {
+        return dirs.compactMap { dir -> DockerContextInfo? in
             guard let data = try? Data(contentsOf: dir.appendingPathComponent("meta.json")),
-                  let meta = try? JSONDecoder().decode(Meta.self, from: data), meta.Name == name else { continue }
-            return DockerContextInfo(name: name, endpoint: meta.Endpoints?["docker"]?.Host)
+                  let meta = try? JSONDecoder().decode(Meta.self, from: data) else { return nil }
+            return DockerContextInfo(name: meta.Name, endpoint: meta.Endpoints?["docker"]?.Host)
         }
-        return DockerContextInfo(name: name, endpoint: nil)
+        .sorted { $0.name < $1.name }
     }
 }
 

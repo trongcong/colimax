@@ -16,13 +16,16 @@ struct AppServices: Sendable {
     var scannerTools: @Sendable () async -> [ScannerTool] = { await ScannerTool.available() }
     /// The docker CLI's current context (Diagnostics). Live: read from `~/.docker`.
     var dockerContext: @Sendable () -> DockerContextInfo? = { DockerContextReader.current() }
+    /// Switching from OrbStack / Docker Desktop (G27). Inert by default so tests never touch `~/.docker`.
+    var runtimeSwitcher: any RuntimeSwitching = NoRuntimeSwitching()
 
     static let live = AppServices(
         colima: LiveColima(),
         makeDocker: { DockerClient(socketPath: $0) },
         checkPrerequisites: { await Prerequisites.check() },
         installPrerequisites: { Prerequisites.install($0) },
-        watchesColimaDirectory: true
+        watchesColimaDirectory: true,
+        runtimeSwitcher: LiveRuntimeSwitcher()
     )
 
     /// Services for this launch: the live ones, or the UI-test fixtures when the app was built with
@@ -71,6 +74,8 @@ protocol ProfileContext: AnyObject {
     var operations: OperationCenter { get }
     var colima: any ColimaControlling { get }
     var selectedProfileName: String { get }
+    /// Docker socket of the selected profile.
+    var socketPath: String { get }
     var isRunning: Bool { get }
     var notifyVMChanges: Bool { get }
     func notify(title: String, body: String)

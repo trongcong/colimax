@@ -15,7 +15,7 @@ Current results of every test layer are in [FEATURES.md](FEATURES.md#verificatio
 | Real Docker Engine API | Conditional integration tests | Run only when the flag is set and the VM responds |
 | Real Colima VM / profile | Separate conditional integration tests (`COLIMAX_INTEGRATION_VM=1`) | Create a small `colimax-test-*` profile and delete it afterwards |
 | Checklist logic (runtime change confirmations, Diagnostics filter, Storage selection, Setup Assistant, VM stop confirmation, notifications) | Unit tests with fakes (`ChecklistTests.swift`) | Items of the manual checklist that do not need the UI |
-| UI: confirmations, forms, sheets, shortcuts, Setup Assistant states, secret masking | XCUITest against fixtures and fixture scenarios (`scripts/ui-tests.sh`, see [UI tests](#ui-tests-xcuitest)) | Needs Xcode + Accessibility permission. 31 tests, about 6.5 minutes. Not run in CI yet |
+| UI: confirmations, forms, sheets, shortcuts, Setup Assistant states, secret masking | XCUITest against fixtures and fixture scenarios (`scripts/ui-tests.sh`, see [UI tests](#ui-tests-xcuitest)) | Needs Xcode + Accessibility permission. 31 tests, about 6.5 minutes. Runs in CI on the `xcode-27` runner as an informational job (no docker CLI there, so `testComposeDownAsksFirst` skips; results uploaded as an artifact on failure) |
 | Remaining UI flows | Manual check using the checklist below | System integration, visuals, save dialogs, real VM |
 
 ## Running the tests
@@ -47,7 +47,7 @@ Launch environment understood by the UI-test build (`UITestApp.launch` sets it):
 | Variable | Effect |
 |---|---|
 | `COLIMAX_UI_TEST_SCREEN` | Screen opened at launch (`Screen` raw value) |
-| `COLIMAX_UI_TEST_SCENARIO` | Fixture variant (`UITestScenario`): `vm-stopped`, `slow-op` (VM operations never finish until cancelled), `no-brew`, `missing-tools`, `compose-plugin`, `no-profile`, `elasticsearch` (adds a cluster without `path.repo`), `demo` (a realistic workload for the landing page screenshots, `DemoFixtures`) |
+| `COLIMAX_UI_TEST_SCENARIO` | Fixture variant (`UITestScenario`): `vm-stopped`, `slow-op` (VM operations never finish until cancelled), `no-brew`, `missing-tools`, `compose-plugin`, `no-profile`, `other-runtime` (OrbStack running and selected, Docker Desktop's credential helper and a broken plugin link left over; `FakeRuntimeSwitcher`), `elasticsearch` (adds a cluster without `path.repo`), `demo` (a realistic workload for the landing page screenshots, `DemoFixtures`) |
 | `COLIMAX_UI_TEST_FOCUS` | Demo container selected on the Containers screen (`DemoFixtures.containerID`, e.g. `db`) |
 | `COLIMAX_UI_TEST_DETAIL_TAB` | Tab the container details open on: `Info`, `Logs` (default), `Inspect`, `Exec` |
 | `COLIMAX_UI_TEST_OPEN_FILE` | File returned by the open panel (`FilePanels.open`), e.g. a dump to restore |
@@ -59,7 +59,7 @@ Covered:
   - destructive confirmations, each checking that Cancel changes nothing and, where safe, that confirming does the action: deleting a container, stopping the VM with running containers, deleting a profile, deleting / pruning volumes, pruning all unused images, `docker compose down` (Cancel only: confirming would run the real compose CLI; skipped when it is not installed);
   - secret masking: `POSTGRES_PASSWORD` of the `db` container is masked until "Show Secrets" is turned on.
 - `ChecklistUITests` (18 tests): ⌘1…⌘9 / Go menu / ⌘,; waiting state with the VM stopped; cancelling a long operation; quitting during an operation and without one; Runtime Settings (invalid profile name, CPU change asks to restart, arch change asks to recreate, typed confirmation to shrink the disk and the unlock resetting); Copy KEY=VALUE hidden while masked; database restore typed confirmation and preflight error; Pull button disabled for invalid references and the Arch warning; vulnerability scan without a scanner; create network form and delete / prune confirmations; compose service rebuild confirmation (Cancel only); Elasticsearch without `path.repo`; Vietnamese UI.
-- `SetupUITests` (5 tests): every tool installed, no Homebrew, tools missing (exact `brew install` command, fake install, rows refresh), compose plugin not loaded (writes a temporary `DOCKER_CONFIG`), no profile (Start Colima).
+- `SetupUITests` (6 tests): every tool installed, no Homebrew, tools missing (exact `brew install` command, fake install, rows refresh), compose plugin not loaded (writes a temporary `DOCKER_CONFIG`), no profile (Start Colima), another runtime (G27: opens at launch, switch context / credentials / plugins / quit each ask first).
 
 Prerequisites: Xcode (not only the Command Line Tools), and on the first run allow the test runner under System Settings → Privacy & Security → Accessibility (and Automation if asked). Run on a logged-in desktop session; the tests take control of the mouse and keyboard.
 
@@ -138,6 +138,7 @@ Test files live in `Tests/ColimaXTests/`.
 | `IntegrationTests.swift` | `IntegrationTests` (25) | See the section above |
 | `VMProfileIntegrationTests.swift` | `VMProfileIntegrationTests` (1) | See the section above (requires `COLIMAX_INTEGRATION_VM=1`) |
 | `SetupTests.swift` | `SetupTests` (11) | Setup Assistant: missing formulae, compose plugin detection, `brew install` argument allowlist, docker `config.json` merge / backup / 0600 |
+| `RuntimeSwitchTests.swift` | `RuntimeSwitchTests` (19) | Switching from OrbStack / Docker Desktop (G27): context / credentials / plugin / `/var/run/docker.sock` report logic, `config.json` edits keep other keys, live switcher on a temporary `DOCKER_CONFIG` (backup, 0600, unknown context rejected, only dangling links inside `cli-plugins` moved, never deleted), `SetupModel` switch / switch back with a fake |
 | `ChecklistTests.swift` | `ChecklistLogicTests` (3), `ChecklistStoreTests` (11) | Manual checklist items moved to unit tests: runtime change plan (restart / recreate / typed shrink), Diagnostics filter and order, Storage removes only ticked unused volumes, Setup Assistant at launch / install / cancel, VM stop / restart confirmation only with running containers, compose project added without starting, notifications (container exit, VM, failed schedule, resource alert once) |
 | `StoreTests.swift` | `StoreTests` (25) | `AppStore` + per-screen models + `OperationCenter` against `FakeColima` / `FakeDocker`: connect and reload, one failing endpoint, error clearing, events, VM / profile operations, busy keys, log bound, host protocols, UI-test fixtures |
 | `TransferFakeTests.swift` | `TransferFakeTests` (10) | Services against `FakeDocker`: volume backup / restore round-trip through helpers, tampered file rejected before Docker, failed download keeps the old file, stale helper cleanup, database dump / failure / restore staging, scheduled backups, proxy Caddyfile before start |
@@ -198,6 +199,16 @@ Install / configure logic: `SetupTests`. The sheet states are UI tests in `Setup
 - [x] ~~Compose plugin installed but not loaded: **Configure Plugin** asks for confirmation, updates the docker CLI `config.json` (other keys kept, `config.json.colimax-backup` written)~~ → UI `testConfigurePluginUpdatesTheDockerConfigAndKeepsOtherKeys`
 - [x] ~~No Colima profile yet: **Start Colima** starts profile `default` and the log streams in the sheet~~ → UI `testNoProfileStartColimaStartsTheDefaultProfile`
 - [ ] On a clean Mac (or a fresh macOS VM): a real `brew install colima docker docker-compose` from the assistant, then `docker compose version` works after **Configure Plugin**.
+
+### Switching from OrbStack / Docker Desktop (G27)
+
+Report logic and config edits: `RuntimeSwitchTests`. Sheet flow: UI `SetupUITests.testOtherRuntimeOpensAtLaunchAndEveryChangeAsksFirst` (passes locally).
+
+- [ ] With OrbStack installed and running (context `orbstack`) and a running Colima profile: the assistant opens at launch; **Switch to Colima** then `docker context show` prints `colima` and `docker ps` lists Colima's containers; **Switch Back** restores `orbstack`.
+- [ ] **Quit OrbStack** quits it; reopening OrbStack does / does not switch the context back (record which, then adjust the hint text).
+- [ ] With Docker Desktop removed but `credsStore: desktop` left in `~/.docker/config.json`: the credentials row is red; **Use macOS Keychain** (installing `docker-credential-helper` first if needed), then `docker pull` of a public image works.
+- [ ] A dangling `~/.docker/cli-plugins/docker-compose` link left by Docker Desktop: **Move Aside**, then **Configure Plugin** if offered, then `docker compose version` works.
+- [ ] The `sudo ln -sf …` command copied from the `/var/run/docker.sock` row works in Terminal, and Testcontainers / an IDE then reaches Colima.
 
 ### Runtime (Dashboard, Runtime Settings, menu bar)
 

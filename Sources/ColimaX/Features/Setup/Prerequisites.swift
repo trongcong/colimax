@@ -46,8 +46,9 @@ enum PrerequisiteError: LocalizedError {
 /// Never installs Homebrew itself: its installer needs admin rights (sudo) and runs code downloaded
 /// from the network, so the app only shows the command for the user to run in Terminal.
 enum Prerequisites {
-    /// The only formulae the app is allowed to install.
-    static let allowedFormulae: [String] = ["colima", "docker", "docker-compose"]
+    /// The only formulae the app is allowed to install. `docker-credential-helper` replaces Docker
+    /// Desktop's credential helper when switching to Colima (G27).
+    static let allowedFormulae: [String] = ["colima", "docker", "docker-compose", "docker-credential-helper"]
 
     /// Official Homebrew install command (https://brew.sh).
     static let homebrewInstallCommand =
@@ -115,30 +116,16 @@ enum Prerequisites {
 
     /// Adds `directory` to `cliPluginsExtraDirs`, preserving all other keys. Pure, for testing.
     static func addingPluginDirectory(_ directory: String, to config: Data?) throws -> Data {
-        var object: [String: Any] = [:]
-        if let config, !config.allSatisfy({ $0 == 0x20 || $0 == 0x0A || $0 == 0x0D || $0 == 0x09 }) {
-            guard let parsed = try? JSONSerialization.jsonObject(with: config) as? [String: Any] else {
-                throw PrerequisiteError.invalidDockerConfig
-            }
-            object = parsed
+        try DockerConfigFile.editing(config) { object in
+            var dirs = (object["cliPluginsExtraDirs"] as? [Any])?.compactMap { $0 as? String } ?? []
+            if !dirs.contains(directory) { dirs.append(directory) }
+            object["cliPluginsExtraDirs"] = dirs
         }
-        var dirs = (object["cliPluginsExtraDirs"] as? [Any])?.compactMap { $0 as? String } ?? []
-        if !dirs.contains(directory) { dirs.append(directory) }
-        object["cliPluginsExtraDirs"] = dirs
-        return try JSONSerialization.data(withJSONObject: object, options: [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes])
     }
 
     /// Writes the compose plugin directory into the docker CLI config.
     /// Saves a copy of the previous file (`config.json.colimax-backup`) before overwriting it.
     static func configureComposePlugin(directory: String, configDirectory: URL = dockerConfigDirectory) throws {
-        let fm = FileManager.default
-        try fm.createDirectory(at: configDirectory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
-        let configURL = configDirectory.appendingPathComponent("config.json")
-        let existing = fm.fileExists(atPath: configURL.path) ? try Data(contentsOf: configURL) : nil
-        let updated = try addingPluginDirectory(directory, to: existing)
-        if let existing {
-            try AtomicFile.write(existing, to: configDirectory.appendingPathComponent("config.json.colimax-backup"))
-        }
-        try AtomicFile.write(updated, to: configURL)
+        try DockerConfigFile.update(in: configDirectory) { try addingPluginDirectory(directory, to: $0) }
     }
 }

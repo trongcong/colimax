@@ -143,6 +143,13 @@ final class ColimaXUITests: XCTestCase {
 
     /// Only Cancel is exercised: confirming would run the real `docker compose` CLI.
     func testComposeDownAsksFirst() throws {
+        // The app disables the compose actions without the docker CLI (`ComposeService.isAvailable`), and a
+        // disabled SwiftUI Menu may not expose its identifier, so check the CLI up front (same paths as `Shell`).
+        let dockerDirs = ["/opt/homebrew/bin", "/usr/local/bin", "/usr/bin", "/bin", "/usr/sbin", "/sbin"]
+            + (ProcessInfo.processInfo.environment["PATH"]?.split(separator: ":").map(String.init) ?? [])
+        guard dockerDirs.contains(where: { FileManager.default.isExecutableFile(atPath: "\($0)/docker") }) else {
+            throw XCTSkip("docker CLI not available on this machine")
+        }
         launch(screen: "compose")
         app.waitForRow("shop").click()
         let more = app.element("compose.more")

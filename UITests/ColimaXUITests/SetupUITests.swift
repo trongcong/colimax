@@ -111,4 +111,51 @@ final class SetupUITests: XCTestCase {
         XCTAssertTrue(app.element("setup.allInstalled").waitForExistence(timeout: 10), "profile default now exists")
         XCTAssertFalse(start.exists)
     }
+
+    // MARK: Switching from OrbStack / Docker Desktop (G27)
+
+    private func runtimeRow(_ id: String, _ state: String) -> XCUIElement {
+        app.element("setup.runtime.\(id).\(state)")
+    }
+
+    func testOtherRuntimeOpensAtLaunchAndEveryChangeAsksFirst() {
+        app = UITestApp.launch(scenario: "other-runtime")
+        XCTAssertTrue(runtimeRow("context", "warning").waitForExistence(timeout: 10),
+                      "OrbStack owns the docker CLI: the assistant opens at launch")
+        XCTAssertTrue(app.windowText("Found: OrbStack (running), Docker Desktop").exists)
+        XCTAssertTrue(runtimeRow("credentials", "error").exists, "docker-credential-desktop is gone")
+        XCTAssertTrue(runtimeRow("plugins", "warning").exists)
+        XCTAssertTrue(runtimeRow("socket", "info").exists)
+        XCTAssertTrue(app.element("setup.runtime.linkSocket.copy").exists, "the sudo command is only offered for copying")
+        let alert = app.alertDialog
+
+        app.element("setup.runtime.context.action").click()
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "switching the context asks first")
+        XCTAssertTrue(alert.staticTexts["Switch the docker CLI to Colima?"].exists)
+        alert.buttons["Cancel"].click()
+        XCTAssertTrue(app.waitForDisappearance(alert))
+        XCTAssertTrue(runtimeRow("context", "warning").exists, "Cancel changes nothing")
+
+        app.element("setup.runtime.context.action").click()
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        alert.buttons["Switch"].click()
+        XCTAssertTrue(runtimeRow("context", "ok").waitForExistence(timeout: 5))
+        XCTAssertTrue(app.buttons["Switch Back to “orbstack”"].exists, "the old context can be restored")
+
+        app.element("setup.runtime.credentials.action").click()
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        alert.buttons["Use Keychain"].click()
+        XCTAssertTrue(app.waitForDisappearance(runtimeRow("credentials", "error")))
+
+        app.element("setup.runtime.plugins.action").click()
+        XCTAssertTrue(alert.waitForExistence(timeout: 5))
+        XCTAssertTrue(alert.elementContaining("Nothing is deleted").exists)
+        alert.buttons["Move Aside"].click()
+        XCTAssertTrue(app.waitForDisappearance(runtimeRow("plugins", "warning")))
+
+        app.element("setup.runtime.running.orbStack.action").click()
+        XCTAssertTrue(alert.waitForExistence(timeout: 5), "quitting OrbStack asks first")
+        alert.buttons["Quit OrbStack"].click()
+        XCTAssertTrue(app.waitForDisappearance(runtimeRow("running.orbStack", "info")))
+    }
 }

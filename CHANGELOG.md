@@ -8,6 +8,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- Setup Assistant: switch from OrbStack / Docker Desktop to Colima (G27). Detects the other runtime and, after confirmation for each step, points the docker CLI context at the selected profile (with Switch Back), replaces Docker Desktop's `desktop` credential helper with `osxkeychain`, moves aside broken `cli-plugins` links and quits the other app. Shows the `sudo` command for `/var/run/docker.sock` instead of running it. Opens at launch when another runtime still owns the docker CLI.
+
 ## [1.0.0-beta.1] - 2026-11-22
 
 First pre-release of **1.0.0**. Ad-hoc signed, not notarized by Apple (see [docs/RELEASE.md](docs/RELEASE.md) §3.6). The final 1.0.0 entry will repeat this list plus any fixes made during the beta.

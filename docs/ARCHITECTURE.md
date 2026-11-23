@@ -101,7 +101,7 @@ The dependency rule still applies within and across folders: a feature's views d
 1. When a profile switches to running, `AppStore.connectDocker` calls `resolveEndpoint()`, i.e. `colima status --profile <p> --json`.
 2. `ColimaStatus.dockerSocketPath` takes the `docker_socket` field and strips the `unix://` prefix; `ColimaStatus.unixPath` accepts only absolute paths.
 3. `ColimaService.resolveDockerSocket` uses that value; if `colima status` fails or returns no socket, it falls back to the convention `$COLIMA_HOME/<profile>/docker.sock` (default `~/.colima`).
-4. All clients (`AppStore.docker`, Compose, Terminal, Diagnostics) share `AppStore.socketPath`. Compose and Terminal receive it via `DOCKER_HOST=unix://…`, so they do not depend on the CLI's Docker context.
+4. All clients (`AppStore.docker`, Compose, Terminal, Diagnostics) share `AppStore.socketPath`. Compose and Terminal receive it via `DOCKER_HOST=unix://…`, so they do not depend on the CLI's Docker context. The terminal `docker` CLI does; the Setup Assistant can point its context at the selected profile (G27, `Features/Setup/RuntimeSwitch.swift`).
 5. Diagnostics reads `~/.docker/config.json` and `contexts/meta/*/meta.json` (`DockerContextReader`) to report when the CLI's context points elsewhere. This is informational only; nothing is modified.
 
 `DockerClient` uses HTTP/1.0: the daemon does not chunk responses and closes the connection itself, so streams only need to be read until EOF. A fallback `dechunk` is still present. Path segments and query values are always percent-encoded (`DockerClient.escape`).

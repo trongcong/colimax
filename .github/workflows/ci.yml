@@ -43,7 +43,8 @@ jobs:
     name: UI tests (XCUITest, fixtures)
     runs-on: xcode-27
     timeout-minutes: 30
-    # New in 1.0.0 and not yet run on a hosted runner: keep it informational until it has passed there.
+    # Runs on the hosted xcode-27 runner (no docker CLI there, so docker-dependent tests skip).
+    # Informational until it is green there consistently.
     continue-on-error: true
     steps:
       - uses: actions/checkout@v7
@@ -55,3 +56,14 @@ jobs:
 
       - name: Build UI-test app + run XCUITest
         run: scripts/ui-tests.sh
+
+      - name: Upload UI test results on failure
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: ui-test-results
+          path: |
+            build/ui-tests.log
+            build/ui-test-results.xcresult
+          retention-days: 7
+          if-no-files-found: ignore
