@@ -176,7 +176,9 @@ final class RuntimeSwitchTests: XCTestCase {
         let before = try await XCTUnwrapAsync(await switcher.inspect(profile: "default", socketPath: socket))
         XCTAssertEqual(before.contexts.map(\.name), ["colima", "orbstack"])
         XCTAssertEqual(before.currentContextOwner, .orbStack)
-        XCTAssertTrue(before.needsContextSwitch)
+        // Not `needsContextSwitch`: that also needs a docker CLI on this machine (CI runners have none).
+        XCTAssertFalse(before.currentContextTargetsProfile)
+        XCTAssertEqual(before.colimaContext?.name, "colima")
         XCTAssertTrue(before.usesDesktopCredentials)
 
         try await switcher.useContext("colima")
