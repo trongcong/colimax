@@ -6,7 +6,7 @@
 
 Ứng dụng macOS native để quản lý Colima và Docker trên Apple Silicon.
 
-![Version](https://img.shields.io/badge/version-1.0.0--beta.1-orange)
+![Version](https://img.shields.io/badge/version-1.0.0--beta.2-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![macOS](https://img.shields.io/badge/macOS-14%2B-lightgrey)
 ![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-black)
@@ -241,7 +241,7 @@ Giao diện có tiếng Anh và tiếng Việt (`Resources/en.lproj`, `Resources
 
 ## Trạng thái dự án
 
-Bản 1.0.0 đang beta (`1.0.0-beta.1`, ký ad-hoc); bản chính thức sẽ được ký Developer ID và notarize. Build sạch (Swift 6 strict concurrency, 0 warning); unit test, integration test và UI test đều pass trên VM Colima thật, checklist kiểm tay giao diện đã làm xong. Trạng thái từng tính năng và kết quả test: [docs/FEATURES.vi.md](docs/FEATURES.vi.md).
+Bản 1.0.0 đang beta (`1.0.0-beta.2`, ký ad-hoc); bản chính thức sẽ được ký Developer ID và notarize. Build sạch (Swift 6 strict concurrency, 0 warning); unit test, integration test và UI test đều pass trên VM Colima thật, checklist kiểm tay giao diện đã làm xong. Trạng thái từng tính năng và kết quả test: [docs/FEATURES.vi.md](docs/FEATURES.vi.md).
 
 ## Giấy phép
 

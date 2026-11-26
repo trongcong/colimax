@@ -6,7 +6,7 @@
 
 A native macOS app for managing Colima and Docker on Apple Silicon.
 
-![Version](https://img.shields.io/badge/version-1.0.0--beta.1-orange)
+![Version](https://img.shields.io/badge/version-1.0.0--beta.2-orange)
 ![License](https://img.shields.io/badge/license-MIT-green)
 ![macOS](https://img.shields.io/badge/macOS-14%2B-lightgrey)
 ![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-arm64-black)
@@ -239,7 +239,7 @@ The UI is available in English and Vietnamese (`Resources/en.lproj`, `Resources/
 
 ## Project status
 
-Version 1.0.0 is in beta (`1.0.0-beta.1`, ad-hoc signed); the final release will be signed with a Developer ID and notarized. It builds cleanly (Swift 6 strict concurrency, 0 warnings); unit, integration and UI tests pass against a real Colima VM, and the manual UI checklist has been done. Per-feature status and test results are tracked in [docs/FEATURES.md](docs/FEATURES.md).
+Version 1.0.0 is in beta (`1.0.0-beta.2`, ad-hoc signed); the final release will be signed with a Developer ID and notarized. It builds cleanly (Swift 6 strict concurrency, 0 warnings); unit, integration and UI tests pass against a real Colima VM, and the manual UI checklist has been done. Per-feature status and test results are tracked in [docs/FEATURES.md](docs/FEATURES.md).
 
 ## License
 

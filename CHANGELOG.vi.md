@@ -8,11 +8,25 @@ Mọi thay đổi đáng chú ý của ColimaX được ghi trong file này. B�
 
 ## [Unreleased]
 
+## [1.0.0-beta.2] - 2026-11-26
+
+Bản pre-release thứ hai của **1.0.0**, bản đầu tiên do GitHub Actions build. Vẫn ký ad-hoc, chưa notarize bởi Apple; DMG có attestation nguồn gốc build (`gh attestation verify ColimaX-1.0.0-beta.2.dmg -R trongcong/colimax`).
+
 ### Added
 
 - Cài bằng một lệnh: `curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh` tải bản mới nhất, kiểm SHA-256 (và nguồn gốc build nếu có `gh`) rồi cài ColimaX vào `/Applications`, không cần bước "Open Anyway" của Gatekeeper.
 - Workflow Release build DMG ad-hoc khi chưa cấu hình Developer ID, và gắn attestation nguồn gốc build cho DMG (`gh attestation verify`).
 - Trợ lý cài đặt: chuyển từ OrbStack / Docker Desktop sang Colima (G27). Phát hiện runtime khác và, sau khi xác nhận từng bước, trỏ context của docker CLI sang profile đang chọn (có Chuyển lại), thay credential helper `desktop` của Docker Desktop bằng `osxkeychain`, dời các link hỏng trong `cli-plugins` và thoát app kia. Với `/var/run/docker.sock` chỉ hiện lệnh `sudo` thay vì tự chạy. Tự mở khi khởi động nếu runtime khác vẫn đang giữ docker CLI.
+
+### Changed
+
+- DMG được tạo bằng `diskutil image` trên macOS 26 trở lên (ở đó `hdiutil create` đã bị deprecated); hệ thống cũ hơn vẫn dùng `hdiutil`.
+- Trang giới thiệu: mục Cài đặt nằm ngay sau ảnh chụp; ảnh chụp chuyển thành gallery (thumbnail, trước / sau, phím mũi tên, vuốt).
+
+### Fixed
+
+- `build-app.sh` không còn để lại thư mục asset catalog tạm trong `$TMPDIR` sau mỗi lần build.
+- UI test: compose down được bỏ qua ngay từ đầu trên máy không có docker CLI, và CI giữ log cùng kết quả UI test khi job fail.
 
 ## [1.0.0-beta.1] - 2026-11-22
 
