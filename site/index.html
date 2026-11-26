@@ -44,7 +44,7 @@
       <h1>Colima, in a Mac window.</h1>
       <p class="lede">A native macOS app for Colima and Docker on Apple Silicon. Start the VM, manage containers and Compose projects, back up volumes and databases, and find out what is wrong, from one window or straight from the menu bar.</p>
       <div class="actions">
-        <a class="button primary" href="#install">Build from source</a>
+        <a class="button primary" href="#install">Install</a>
         <a class="button secondary" href="https://github.com/trongcong/colimax">View on GitHub</a>
       </div>
       <p class="note">Free and open source under the MIT license.</p>
@@ -76,28 +76,66 @@
 
 <main id="main">
 
-<section class="shots" aria-label="Screenshots">
+<section class="shots" data-thumbs-label="Screenshots" data-prev-label="Previous screenshot" data-next-label="Next screenshot" aria-label="Screenshots">
   <div class="wrap">
-    <figure class="shot shot-main">
+    <figure class="shot shot-main" data-label="Containers">
       <img src="img/containers.png" width="2200" height="1460" loading="eager" alt="The Containers screen: two Compose projects and standalone containers with health and ports; the details of shop-db-1 show restart policy, memory limit, mounts and environment variables with the password masked.">
       <figcaption>Containers, with health, ports and details. Passwords stay masked until you choose to show them.</figcaption>
     </figure>
     <div class="shot-grid">
-      <figure class="shot">
+      <figure class="shot" data-label="Dashboard">
         <img src="img/dashboard.png" width="2200" height="1460" loading="lazy" alt="The Dashboard: VM running with CPU, memory and disk use inside the VM, Docker engine details and disk usage.">
         <figcaption>Dashboard: what the VM is really using.</figcaption>
       </figure>
-      <figure class="shot">
+      <figure class="shot" data-label="Monitoring">
         <img src="img/monitoring.png" width="2200" height="1460" loading="lazy" alt="The Monitoring screen: live CPU and memory charts and per-container network and disk I/O.">
         <figcaption>Monitoring: live charts per container.</figcaption>
       </figure>
-      <figure class="shot">
+      <figure class="shot" data-label="Diagnostics">
         <img src="img/diagnostics.png" width="2200" height="1460" loading="lazy" alt="The Diagnostics screen: runtime checks and security findings such as a mounted docker.sock and a port open to every interface.">
         <figcaption>Diagnostics: setup checks and a read-only security audit.</figcaption>
       </figure>
     </div>
   </div>
 </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Install</h2>
+      <p class="intro">Install or update the latest pre-release with one command. It downloads the build from <a href="https://github.com/trongcong/colimax/releases">GitHub Releases</a>, checks its SHA-256 (and its build provenance when the GitHub CLI is signed in) and copies ColimaX into Applications; no sudo. <a href="https://github.com/trongcong/colimax/blob/main/scripts/install.sh">Read the script</a> first if you like.</p>
+      <div class="code-block"><pre class="code"><code>curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+      <p class="intro">Builds are not notarized by Apple yet (an indie project without a paid Developer ID). If you download the DMG yourself, open the app once, then choose <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>. Prefer to build it yourself? It takes a few minutes:</p>
+      <ol class="steps">
+        <li>
+          <h3>Install Colima and Docker</h3>
+          <p>If you skip this, the Setup Assistant in ColimaX lists what is missing and runs the command for you after you confirm.</p>
+          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+        <li>
+          <h3>Build the app</h3>
+          <p>Needs the Swift 6 toolchain that comes with Xcode.</p>
+          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
+cd colimax
+scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+        <li>
+          <h3>Open it</h3>
+          <p>Copy it to Applications so notifications and open at login work.</p>
+          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
+open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
+        </li>
+      </ol>
+
+      <h3 class="subhead">Requirements</h3>
+      <dl class="requirements">
+        <dt>macOS</dt><dd>14 Sonoma or later</dd>
+        <dt>Mac</dt><dd>Apple Silicon (M1 or later)</dd>
+        <dt>Colima</dt><dd>Required, with the docker runtime</dd>
+        <dt>docker CLI</dt><dd>Only for the Compose screen and opening a shell in Terminal</dd>
+        <dt>Trivy or Docker Scout</dt><dd>Optional, for image vulnerability scans</dd>
+      </dl>
+    </div>
+  </section>
   <section>
     <div class="wrap">
       <h2>Every screen you need, in one sidebar.</h2>
@@ -167,42 +205,6 @@
       </ul>
     </div>
   </section>
-
-  <section id="install">
-    <div class="wrap">
-      <h2>Install</h2>
-      <p class="intro">A pre-release build (1.0.0-beta.1) is on <a href="https://github.com/trongcong/colimax/releases">GitHub Releases</a>. It is not notarized by Apple yet: open it once, then choose <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>. Prefer to build it yourself? It takes a few minutes:</p>
-      <ol class="steps">
-        <li>
-          <h3>Install Colima and Docker</h3>
-          <p>If you skip this, the Setup Assistant in ColimaX lists what is missing and runs the command for you after you confirm.</p>
-          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
-        </li>
-        <li>
-          <h3>Build the app</h3>
-          <p>Needs the Swift 6 toolchain that comes with Xcode.</p>
-          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
-cd colimax
-scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
-        </li>
-        <li>
-          <h3>Open it</h3>
-          <p>Copy it to Applications so notifications and open at login work.</p>
-          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
-open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Copied" data-failed="Copy failed">Copy</button></div>
-        </li>
-      </ol>
-
-      <h3 class="subhead">Requirements</h3>
-      <dl class="requirements">
-        <dt>macOS</dt><dd>14 Sonoma or later</dd>
-        <dt>Mac</dt><dd>Apple Silicon (M1 or later)</dd>
-        <dt>Colima</dt><dd>Required, with the docker runtime</dd>
-        <dt>docker CLI</dt><dd>Only for the Compose screen and opening a shell in Terminal</dd>
-        <dt>Trivy or Docker Scout</dt><dd>Optional, for image vulnerability scans</dd>
-      </dl>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -217,5 +219,6 @@ open /Applications/ColimaX.app</code></pre><button class="copy" type="button" da
 </footer>
 
 <script src="copy.js"></script>
+<script src="gallery.js"></script>
 </body>
 </html>

@@ -10,6 +10,8 @@ Mọi thay đổi đáng chú ý của ColimaX được ghi trong file này. B�
 
 ### Added
 
+- Cài bằng một lệnh: `curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh` tải bản mới nhất, kiểm SHA-256 (và nguồn gốc build nếu có `gh`) rồi cài ColimaX vào `/Applications`, không cần bước "Open Anyway" của Gatekeeper.
+- Workflow Release build DMG ad-hoc khi chưa cấu hình Developer ID, và gắn attestation nguồn gốc build cho DMG (`gh attestation verify`).
 - Trợ lý cài đặt: chuyển từ OrbStack / Docker Desktop sang Colima (G27). Phát hiện runtime khác và, sau khi xác nhận từng bước, trỏ context của docker CLI sang profile đang chọn (có Chuyển lại), thay credential helper `desktop` của Docker Desktop bằng `osxkeychain`, dời các link hỏng trong `cli-plugins` và thoát app kia. Với `/var/run/docker.sock` chỉ hiện lệnh `sudo` thay vì tự chạy. Tự mở khi khởi động nếu runtime khác vẫn đang giữ docker CLI.
 
 ## [1.0.0-beta.1] - 2026-11-22

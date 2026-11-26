@@ -171,11 +171,12 @@ scripts/build-app.sh          # ad-hoc signing
 scripts/make-dmg.sh           # DMG + .sha256 (DMG is not signed)
 ```
 
-Tạo GitHub Release thủ công dưới dạng **pre-release**, đính kèm DMG + `.sha256`, và ghi rõ trong release notes:
+**Nên dùng: để workflow Release làm.** Khi không có secret `SIGN_IDENTITY`, push tag sẽ chạy workflow ở chế độ ad-hoc: unit test, `build-app.sh` + `make-dmg.sh`, attestation nguồn gốc build cho DMG, và một pre-release dạng draft có sẵn đoạn hướng dẫn cài bên dưới, lệnh cài một dòng (`scripts/install.sh`) và `gh attestation verify ColimaX-X.Y.Z.dmg -R trongcong/colimax`. Approve environment `release`, xem lại draft rồi publish.
+
+Cách thủ công dự phòng (không có attestation): tạo GitHub Release dưới dạng **pre-release**, đính kèm DMG + `.sha256`, và ghi rõ trong release notes:
 
 > Bản build này chưa được Apple notarize. Sau khi kéo ColimaX vào Applications, mở app một lần, rồi vào **System Settings → Privacy & Security → Open Anyway**. Hoặc chạy: `xattr -dr com.apple.quarantine /Applications/ColimaX.app`. Kiểm tra checksum bằng: `shasum -a 256 ColimaX-X.Y.Z.dmg`.
 
-Workflow **Release** trên GitHub cần các secret Developer ID, nên không dùng được trong trường hợp này.
 
 ## 4. Xử lý sự cố
 

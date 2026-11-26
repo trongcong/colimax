@@ -58,6 +58,7 @@ if [ -f Resources/AppIcon-1024.png ] && xcrun --find actool >/dev/null 2>&1; the
        --output-partial-info-plist "${XCASSETS_WORK}/partial.plist" >"${XCASSETS_WORK}/actool.log" 2>&1 \
      && [ -f "${APP_DIR}/Contents/Resources/Assets.car" ]; then
     ICON_NAME_KEY="<key>CFBundleIconName</key><string>AppIcon</string>"
+    rm -rf "${XCASSETS_WORK}"   # kept only on failure, for the actool log
   else
     echo "Warning: actool failed; using AppIcon.icns only (log: ${XCASSETS_WORK}/actool.log)" >&2
   fi

@@ -100,7 +100,17 @@ Docker screens only work when the profile uses the `docker` runtime.
 
 ## Installation
 
-A pre-release build, **1.0.0-beta.1**, is on [GitHub Releases](https://github.com/trongcong/colimax/releases). It is ad-hoc signed and not notarized by Apple: after dragging ColimaX into Applications, open it once, then go to **System Settings → Privacy & Security → Open Anyway** (or run `xattr -dr com.apple.quarantine /Applications/ColimaX.app`). Check the download against the `.sha256` file with `shasum -a 256 ColimaX-1.0.0-beta.1.dmg`.
+Pre-release builds are on [GitHub Releases](https://github.com/trongcong/colimax/releases). They are ad-hoc signed and **not notarized by Apple** (an indie project without a paid Apple Developer ID yet).
+
+Install or update with one command ([read the script first](scripts/install.sh); no sudo):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh
+```
+
+It downloads the newest release, checks its SHA-256 and copies ColimaX into `/Applications`. If the GitHub CLI is installed and signed in, it also verifies the build provenance (built by this repository's Release workflow from the release tag) and stops when that check fails. Files downloaded with curl are not quarantined, so Gatekeeper does not prompt: you are trusting this GitHub repository. The `.sha256` file comes from the same release as the DMG, so on its own it only catches a broken download, not a swapped file; the provenance check is what proves where the DMG came from. `COLIMAX_VERSION=1.0.0-beta.2` picks a version; `COLIMAX_APP_DIR=~/Applications` installs elsewhere.
+
+Or download the DMG yourself: drag ColimaX into Applications, open it once, then go to **System Settings → Privacy & Security → Open Anyway** (or run `xattr -dr com.apple.quarantine /Applications/ColimaX.app`). Compare `shasum -a 256 ColimaX-<version>.dmg` with the `.sha256` file. Releases built by GitHub Actions also carry a build provenance attestation: `gh attestation verify ColimaX-<version>.dmg -R trongcong/colimax` proves the DMG was built from this repository.
 
 Or build the app from source:
 
@@ -129,7 +139,7 @@ Builds distributed to other people must be signed with a Developer ID and notari
 SIGN_IDENTITY="Developer ID Application: <Name> (<TEAMID>)" NOTARY_PROFILE=<profile> scripts/release.sh
 ```
 
-Pushing a `vX.Y.Z` tag to GitHub runs the **Release** workflow, which does the same and creates a draft GitHub Release. The full process, including first-time certificate setup, is in [docs/RELEASE.md](docs/RELEASE.md).
+Pushing a `vX.Y.Z` tag to GitHub runs the **Release** workflow, which does the same and creates a draft GitHub Release. Without the Developer ID secrets it builds an ad-hoc DMG instead; either way the DMG gets a build provenance attestation. The full process, including first-time certificate setup, is in [docs/RELEASE.md](docs/RELEASE.md).
 
 ## Usage
 

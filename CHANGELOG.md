@@ -10,6 +10,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ### Added
 
+- One-line installer: `curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh` downloads the newest release, checks its SHA-256 (and build provenance when `gh` is installed) and installs ColimaX into `/Applications` without the Gatekeeper "Open Anyway" step.
+- Release workflow builds an ad-hoc DMG when no Developer ID is configured, and attests the DMG's build provenance (`gh attestation verify`).
 - Setup Assistant: switch from OrbStack / Docker Desktop to Colima (G27). Detects the other runtime and, after confirmation for each step, points the docker CLI context at the selected profile (with Switch Back), replaces Docker Desktop's `desktop` credential helper with `osxkeychain`, moves aside broken `cli-plugins` links and quits the other app. Shows the `sudo` command for `/var/run/docker.sock` instead of running it. Opens at launch when another runtime still owns the docker CLI.
 
 ## [1.0.0-beta.1] - 2026-11-22

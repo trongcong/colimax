@@ -100,7 +100,17 @@ Các màn Docker chỉ hoạt động khi profile dùng runtime `docker`.
 
 ## Cài đặt
 
-Bản pre-release **1.0.0-beta.1** có trên [GitHub Releases](https://github.com/trongcong/colimax/releases). Bản này ký ad-hoc và chưa được Apple notarize: sau khi kéo ColimaX vào Applications, mở app một lần rồi vào **System Settings → Privacy & Security → Open Anyway** (hoặc chạy `xattr -dr com.apple.quarantine /Applications/ColimaX.app`). Kiểm file tải về với file `.sha256` bằng `shasum -a 256 ColimaX-1.0.0-beta.1.dmg`.
+Các bản pre-release có trên [GitHub Releases](https://github.com/trongcong/colimax/releases). Chúng được ký ad-hoc và **chưa được Apple notarize** (dự án cá nhân, chưa có Apple Developer ID trả phí).
+
+Cài hoặc cập nhật bằng một lệnh ([đọc script trước](scripts/install.sh); không cần sudo):
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh
+```
+
+Script tải bản mới nhất, kiểm SHA-256 rồi chép ColimaX vào `/Applications`. Nếu có GitHub CLI đã đăng nhập, script còn kiểm nguồn gốc build (build bởi workflow Release của repository này từ đúng tag) và dừng nếu kiểm không qua. File tải bằng curl không bị gắn quarantine nên Gatekeeper không hỏi: bạn đang tin repository GitHub này. File `.sha256` nằm cùng release với DMG, nên riêng nó chỉ phát hiện file tải bị hỏng, không phát hiện file bị tráo; bước kiểm nguồn gốc mới chứng minh DMG đến từ đâu. `COLIMAX_VERSION=1.0.0-beta.2` để chọn phiên bản; `COLIMAX_APP_DIR=~/Applications` để cài chỗ khác.
+
+Hoặc tự tải DMG: kéo ColimaX vào Applications, mở app một lần rồi vào **System Settings → Privacy & Security → Open Anyway** (hoặc chạy `xattr -dr com.apple.quarantine /Applications/ColimaX.app`). So `shasum -a 256 ColimaX-<version>.dmg` với file `.sha256`. Các bản do GitHub Actions build còn có attestation nguồn gốc build: `gh attestation verify ColimaX-<version>.dmg -R trongcong/colimax` chứng minh DMG được build từ chính repository này.
 
 Hoặc build app từ mã nguồn:
 
@@ -129,7 +139,7 @@ Bản phát hành cho người khác phải ký Developer ID và notarize. Một
 SIGN_IDENTITY="Developer ID Application: <Tên> (<TEAMID>)" NOTARY_PROFILE=<profile> scripts/release.sh
 ```
 
-Push tag `vX.Y.Z` lên GitHub thì workflow **Release** làm tương tự và tạo GitHub Release dạng draft. Quy trình đầy đủ, kể cả thiết lập chứng chỉ lần đầu: [docs/RELEASE.md](docs/RELEASE.md).
+Push tag `vX.Y.Z` lên GitHub thì workflow **Release** làm tương tự và tạo GitHub Release dạng draft. Khi chưa có secret Developer ID, workflow build DMG ad-hoc thay thế; cả hai cách đều gắn attestation nguồn gốc build cho DMG. Quy trình đầy đủ, kể cả thiết lập chứng chỉ lần đầu: [docs/RELEASE.md](docs/RELEASE.md).
 
 ## Sử dụng
 

@@ -44,7 +44,7 @@
       <h1>Colima, trong một cửa sổ Mac.</h1>
       <p class="lede">App macOS native cho Colima và Docker trên Apple Silicon. Bật VM, quản lý container và project Compose, backup volume và database, tìm ra chỗ đang lỗi, ngay trong một cửa sổ hoặc từ menu bar.</p>
       <div class="actions">
-        <a class="button primary" href="#install">Build từ mã nguồn</a>
+        <a class="button primary" href="#install">Cài đặt</a>
         <a class="button secondary" href="https://github.com/trongcong/colimax">Xem trên GitHub</a>
       </div>
       <p class="note">Miễn phí, mã nguồn mở theo giấy phép MIT.</p>
@@ -76,28 +76,66 @@
 
 <main id="main">
 
-<section class="shots" aria-label="Ảnh chụp màn hình">
+<section class="shots" data-thumbs-label="Ảnh chụp màn hình" data-prev-label="Ảnh trước" data-next-label="Ảnh sau" aria-label="Ảnh chụp màn hình">
   <div class="wrap">
-    <figure class="shot shot-main">
+    <figure class="shot shot-main" data-label="Containers">
       <img src="../img/containers.png" width="2200" height="1460" loading="eager" alt="Màn hình Containers: hai project Compose và các container độc lập kèm health và port; phần chi tiết của shop-db-1 hiện restart policy, giới hạn RAM, mount và biến môi trường với mật khẩu đã được che.">
       <figcaption>Containers, kèm health, port và chi tiết. Mật khẩu luôn được che cho tới khi bạn chọn hiện.</figcaption>
     </figure>
     <div class="shot-grid">
-      <figure class="shot">
+      <figure class="shot" data-label="Dashboard">
         <img src="../img/dashboard.png" width="2200" height="1460" loading="lazy" alt="Dashboard: VM đang chạy, mức dùng CPU, RAM và disk bên trong VM, thông tin Docker engine và dung lượng.">
         <figcaption>Dashboard: VM thực sự đang dùng bao nhiêu.</figcaption>
       </figure>
-      <figure class="shot">
+      <figure class="shot" data-label="Monitoring">
         <img src="../img/monitoring.png" width="2200" height="1460" loading="lazy" alt="Màn hình Monitoring: biểu đồ CPU và RAM trực tiếp, network và disk I/O theo từng container.">
         <figcaption>Monitoring: biểu đồ trực tiếp theo container.</figcaption>
       </figure>
-      <figure class="shot">
+      <figure class="shot" data-label="Diagnostics">
         <img src="../img/diagnostics.png" width="2200" height="1460" loading="lazy" alt="Màn hình Diagnostics: các bước kiểm tra runtime và cảnh báo bảo mật như docker.sock bị mount và port mở ra mọi interface.">
         <figcaption>Diagnostics: kiểm tra cấu hình và security audit chỉ đọc.</figcaption>
       </figure>
     </div>
   </div>
 </section>
+
+  <section id="install">
+    <div class="wrap">
+      <h2>Cài đặt</h2>
+      <p class="intro">Cài hoặc cập nhật bản pre-release mới nhất bằng một lệnh. Lệnh tải bản build từ <a href="https://github.com/trongcong/colimax/releases">GitHub Releases</a>, kiểm SHA-256 (và nguồn gốc build khi có GitHub CLI đã đăng nhập) rồi chép ColimaX vào Applications; không cần sudo. Bạn có thể <a href="https://github.com/trongcong/colimax/blob/main/scripts/install.sh">đọc script</a> trước.</p>
+      <div class="code-block"><pre class="code"><code>curl -fsSL https://raw.githubusercontent.com/trongcong/colimax/main/scripts/install.sh | sh</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+      <p class="intro">Các bản build chưa được Apple notarize (dự án cá nhân, chưa có Developer ID trả phí). Nếu tự tải DMG, mở app một lần rồi chọn <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>. Muốn tự build? Mất vài phút:</p>
+      <ol class="steps">
+        <li>
+          <h3>Cài Colima và Docker</h3>
+          <p>Nếu bỏ qua bước này, Setup Assistant trong ColimaX sẽ liệt kê những gì còn thiếu và chạy lệnh giúp bạn sau khi bạn xác nhận.</p>
+          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+        <li>
+          <h3>Build app</h3>
+          <p>Cần bộ công cụ Swift 6 đi kèm Xcode.</p>
+          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
+cd colimax
+scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+        <li>
+          <h3>Mở app</h3>
+          <p>Copy vào Applications để thông báo và mở cùng máy hoạt động.</p>
+          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
+open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
+        </li>
+      </ol>
+
+      <h3 class="subhead">Yêu cầu</h3>
+      <dl class="requirements">
+        <dt>macOS</dt><dd>14 Sonoma trở lên</dd>
+        <dt>Máy Mac</dt><dd>Apple Silicon (M1 trở lên)</dd>
+        <dt>Colima</dt><dd>Bắt buộc, dùng runtime docker</dd>
+        <dt>docker CLI</dt><dd>Chỉ cần cho màn hình Compose và mở shell trong Terminal</dd>
+        <dt>Trivy hoặc Docker Scout</dt><dd>Tuỳ chọn, để quét lỗ hổng image</dd>
+      </dl>
+    </div>
+  </section>
   <section>
     <div class="wrap">
       <h2>Mọi màn hình cần dùng, trong một sidebar.</h2>
@@ -167,42 +205,6 @@
       </ul>
     </div>
   </section>
-
-  <section id="install">
-    <div class="wrap">
-      <h2>Cài đặt</h2>
-      <p class="intro">Bản pre-release (1.0.0-beta.1) có trên <a href="https://github.com/trongcong/colimax/releases">GitHub Releases</a>. Bản này chưa được Apple notarize: mở app một lần, rồi chọn <strong>System Settings → Privacy &amp; Security → Open Anyway</strong>. Muốn tự build? Mất vài phút:</p>
-      <ol class="steps">
-        <li>
-          <h3>Cài Colima và Docker</h3>
-          <p>Nếu bỏ qua bước này, Setup Assistant trong ColimaX sẽ liệt kê những gì còn thiếu và chạy lệnh giúp bạn sau khi bạn xác nhận.</p>
-          <div class="code-block"><pre class="code"><code>brew install colima docker docker-compose</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
-        </li>
-        <li>
-          <h3>Build app</h3>
-          <p>Cần bộ công cụ Swift 6 đi kèm Xcode.</p>
-          <div class="code-block"><pre class="code"><code>git clone https://github.com/trongcong/colimax.git
-cd colimax
-scripts/build-app.sh</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
-        </li>
-        <li>
-          <h3>Mở app</h3>
-          <p>Copy vào Applications để thông báo và mở cùng máy hoạt động.</p>
-          <div class="code-block"><pre class="code"><code>cp -R build/ColimaX.app /Applications/
-open /Applications/ColimaX.app</code></pre><button class="copy" type="button" data-done="Đã copy" data-failed="Không copy được">Copy</button></div>
-        </li>
-      </ol>
-
-      <h3 class="subhead">Yêu cầu</h3>
-      <dl class="requirements">
-        <dt>macOS</dt><dd>14 Sonoma trở lên</dd>
-        <dt>Máy Mac</dt><dd>Apple Silicon (M1 trở lên)</dd>
-        <dt>Colima</dt><dd>Bắt buộc, dùng runtime docker</dd>
-        <dt>docker CLI</dt><dd>Chỉ cần cho màn hình Compose và mở shell trong Terminal</dd>
-        <dt>Trivy hoặc Docker Scout</dt><dd>Tuỳ chọn, để quét lỗ hổng image</dd>
-      </dl>
-    </div>
-  </section>
 </main>
 
 <footer>
@@ -217,5 +219,6 @@ open /Applications/ColimaX.app</code></pre><button class="copy" type="button" da
 </footer>
 
 <script src="../copy.js"></script>
+<script src="../gallery.js"></script>
 </body>
 </html>

@@ -171,11 +171,12 @@ scripts/build-app.sh          # ad-hoc signing
 scripts/make-dmg.sh           # DMG + .sha256 (DMG is not signed)
 ```
 
-Create a GitHub Release manually as a **pre-release**, attach the DMG + `.sha256`, and state clearly in the release notes:
+**Preferred: let the Release workflow do it.** Without the `SIGN_IDENTITY` secret, pushing the tag runs the workflow in ad-hoc mode: unit tests, `build-app.sh` + `make-dmg.sh`, a build provenance attestation for the DMG, and a draft pre-release whose notes include the install text below, the one-line installer (`scripts/install.sh`) and `gh attestation verify ColimaX-X.Y.Z.dmg -R trongcong/colimax`. Approve the `release` environment, review the draft, publish.
+
+Manual fallback (no attestation): create a GitHub Release as a **pre-release**, attach the DMG + `.sha256`, and state clearly in the release notes:
 
 > This build is not notarized by Apple. After dragging ColimaX into Applications, open it once, then go to **System Settings → Privacy & Security → Open Anyway**. Alternatively, run: `xattr -dr com.apple.quarantine /Applications/ColimaX.app`. Verify the checksum with: `shasum -a 256 ColimaX-X.Y.Z.dmg`.
 
-The GitHub **Release** workflow requires the Developer ID secrets, so it cannot be used in this case.
 
 ## 4. Troubleshooting
 

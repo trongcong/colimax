@@ -1,7 +1,12 @@
 name: Release
 
-# Pushing tag vX.Y.Z builds, signs with Developer ID, notarizes, and creates a DRAFT GitHub Release.
-# The release manager reviews the draft and publishes it manually.
+# Pushing tag vX.Y.Z builds the DMG, attests its build provenance and creates a DRAFT GitHub Release.
+# The release manager approves the `release` environment, reviews the draft and publishes it manually.
+#
+# Two modes, chosen by whether the SIGN_IDENTITY secret is set:
+#   signed  - Developer ID signing + notarization (scripts/release.sh), needs every secret below.
+#   ad-hoc  - no Apple Developer ID yet: ad-hoc signed, not notarized (docs/RELEASE.md 3.6). The
+#             release notes then explain how to open the app and how to verify the attestation.
 #
 # Required secrets (Settings -> Secrets and variables -> Actions):
 #   MACOS_CERT_P12_BASE64   "Developer ID Application" certificate exported as .p12, base64-encoded
@@ -17,7 +22,9 @@ on:
     tags: ["v*.*.*"]
 
 permissions:
-  contents: write
+  contents: write      # create the release
+  id-token: write      # artifact attestation (Sigstore)
+  attestations: write
 
 jobs:
   release:
@@ -40,7 +47,15 @@ jobs:
       - name: Unit tests
         run: scripts/run-tests.sh
 
+      - name: Choose signing mode
+        env:
+          HAS_IDENTITY: ${{ secrets.SIGN_IDENTITY != '' }}
+        run: |
+          if [ "$HAS_IDENTITY" = "true" ]; then echo "SIGNED=1" >> "$GITHUB_ENV"; else echo "SIGNED=0" >> "$GITHUB_ENV"; fi
+          [ "$HAS_IDENTITY" = "true" ] && echo "Mode: Developer ID + notarization" || echo "Mode: ad-hoc (no SIGN_IDENTITY secret)"
+
       - name: Import certificate into a temporary keychain
+        if: env.SIGNED == '1'
         env:
           CERT_P12: ${{ secrets.MACOS_CERT_P12_BASE64 }}
           CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
@@ -57,6 +72,7 @@ jobs:
           rm -f "$RUNNER_TEMP/cert.p12"
 
       - name: Build, sign, notarize, DMG
+        if: env.SIGNED == '1'
         env:
           SIGN_IDENTITY: ${{ secrets.SIGN_IDENTITY }}
           BUNDLE_ID: ${{ vars.BUNDLE_ID || 'dev.colimax.ColimaX' }}
@@ -71,6 +87,20 @@ jobs:
           scripts/release.sh
           rm -f "$NOTARY_KEY_PATH"
 
+      - name: Build ad-hoc DMG (no Developer ID)
+        if: env.SIGNED == '0'
+        env:
+          BUNDLE_ID: ${{ vars.BUNDLE_ID || 'dev.colimax.ColimaX' }}
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          scripts/build-app.sh
+          scripts/make-dmg.sh
+
+      - name: Attest build provenance
+        uses: actions/attest@v4
+        with:
+          subject-path: build/ColimaX-${{ env.VERSION }}.dmg
+
       - name: Extract release notes from CHANGELOG
         run: |
           awk -v v="$VERSION" '
@@ -79,6 +109,20 @@ jobs:
             on {print}
           ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
           test -s "$RUNNER_TEMP/notes.md"
+          if [ "$SIGNED" = "0" ]; then
+            cat >> "$RUNNER_TEMP/notes.md" <<EOF
+
+          ### Installing this build
+
+          This build is **not notarized by Apple** (ad-hoc signed). Either:
+
+          - install with one command: \`curl -fsSL https://raw.githubusercontent.com/${GITHUB_REPOSITORY}/main/scripts/install.sh | sh\` ([read the script first](https://github.com/${GITHUB_REPOSITORY}/blob/main/scripts/install.sh)), or
+          - open the DMG, drag ColimaX into Applications, open it once, then **System Settings → Privacy & Security → Open Anyway** (or \`xattr -dr com.apple.quarantine /Applications/ColimaX.app\`).
+
+          The DMG was built by GitHub Actions from this tag. Compare \`shasum -a 256 ColimaX-${VERSION}.dmg\` with the \`.sha256\` file, or check its build provenance:
+          \`gh attestation verify ColimaX-${VERSION}.dmg -R ${GITHUB_REPOSITORY}\`
+          EOF
+          fi
 
       - name: Create GitHub Release (draft)
         env:
@@ -91,5 +135,5 @@ jobs:
             --title "ColimaX ${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" --draft $PRE
 
       - name: Delete temporary keychain
-        if: always()
+        if: always() && env.SIGNED == '1'
         run: security delete-keychain "$RUNNER_TEMP/release.keychain-db" || true
